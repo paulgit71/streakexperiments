@@ -1,0 +1,164 @@
+{{ extends "global/Page.html" }}
+
+{{ block title }}
+Actual Demand vs Traditional System Forecast vs Your Forecast
+{{ endblock }}
+{{ block content }}
+    <div class="row">
+        <div class="col">
+            <div class="card chart-container">
+                <canvas id="chart"></canvas>
+            </div>
+            <p></p>
+
+            <script
+                src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js">
+                </script>
+                <script>
+                  const filterDataAndLabels = (aiData, yourData, labels) => {
+                        const filteredAIData = [];
+                        const filteredYourData = [];
+                        const filteredLabels = [];
+
+                        labels.forEach((label, index) => {
+                          // Always include demand data labels
+                          filteredLabels.push(label);
+
+                          // Include AI and Your forecast data only from week 21 onward
+                          if (index >= 20) {  // Week 21 and beyond
+                            filteredAIData.push(aiData[index] !== 0 ? aiData[index] : null);
+                            filteredYourData.push(yourData[index] !== 0 ? yourData[index] : null);
+                          } else {
+                            filteredAIData.push(null);  // Null for weeks 1-20
+                            filteredYourData.push(null);  // Null for weeks 1-20
+                          }
+                        });
+
+                        return { filteredAIData, filteredYourData, filteredLabels };
+                      };
+                      const labelBlock = js_vars.label_block || [];
+                      const aiDataBlock = js_vars.ai_data_block || [];
+                      const yourDataBlock = js_vars.your_data_block || [];
+
+                      const filteredData = filterDataAndLabels(aiDataBlock, yourDataBlock, labelBlock);
+
+                      const ctx = document.getElementById("chart").getContext('2d');
+                      const myChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                          labels: js_vars.label_block,
+                          datasets: [{
+                              label: "Actual Demand",
+                              data: js_vars.actual_demand_block,
+                              backgroundColor: [
+                                'rgba(75, 192, 192, 0.2)',
+                              ],
+                              fill: false,
+                              borderColor: [
+                                'rgba(75, 192, 192)',
+                              ],
+                              borderWidth: 2,
+                              tension: 0.0
+                            },
+                            {
+                              label: "Traditional Tool forecast",
+                              data: filteredData.filteredAIData,
+                              backgroundColor: [
+                                'rgba(105, 0, 132, .2)',
+                              ],
+                              fill: false,
+                              borderColor: [
+                                'rgba(255, 99, 132, 0.8)',
+                              ],
+                              borderWidth: 2,
+                              tension: 0.0
+                            },
+                            {
+                              label: "Your forecast",
+                              data: filteredData.filteredYourData,
+                              backgroundColor: [
+                                'rgba(0, 137, 132, .2)',
+                              ],
+                              fill: false,
+                              borderColor: [
+                                'rgba(50, 150, 255, 1)',
+                              ],
+                              borderWidth: 2,
+                              tension: 0.0
+                            }
+                          ]
+                        },
+                        options: {
+                            responsive: true,
+                          scales: {
+                            yAxes: [{
+                              ticks: {
+                                beginAtZero: false,
+                                fontSize: 10,
+                              }
+                            }],
+                            xAxes: [{
+                              ticks: {
+                                fontSize: 10,
+                              }
+                            }]
+                          }
+                        },
+                      });
+                      // reload
+                      (() => {
+                            if (window.localStorage) {
+                                if (!localStorage.getItem('reload')) {
+                                    localStorage['reload'] = true;
+                                    window.location.reload();
+                                } else {
+                                    localStorage.removeItem('reload');
+                                }
+                            }
+                        })();
+            </script>
+        </div>
+    </div>
+
+    <div class="row overflow-auto" style="height: 400px;">
+        <div class="col">
+            <table class="table table-bordered table-sm">
+              <thead>
+                <tr>
+                    <th colspan="8"  class="text-center">
+                    Forecast performance for Traditional System and Your Forecast
+                    </th>
+                </tr>
+                <tr>
+                  <th scope="col">Week</th>
+                  <th scope="col">Actual Demand</th>
+                  <th scope="col">Traditional System Forecast</th>
+                  <th scope="col">Traditional System Forecast Error</th>
+                  <th scope="col">CMAPE for Traditional Tool</th>
+                  <th scope="col">Your Forecast</th>
+                  <th scope="col">Your Forecast Error</th>
+                  <th scope="col">CMAPE for Your Forecast</th>
+                </tr>
+              </thead>
+              <tbody class="text-center">
+                    {% for data in table_data %}
+                    <tr class="text-center">
+                      <td>{{data.0}}</td>
+                      <td>{{data.1}}</td>
+                      <td>{{data.2}}</td>
+                      <td>{{data.3}}</td>
+                      <td>{{data.4}}%</td>
+                      <td>{{data.5}}</td>
+                      <td>{{data.6}}</td>
+                      <td>{{data.7}}%</td>
+                    </tr>
+                    {% endfor %}
+              </tbody>
+            </table>
+        </div>
+      </div>
+
+<p></p>
+    {{ next_button }}
+
+{{ endblock }}

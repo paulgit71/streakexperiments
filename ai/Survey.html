@@ -1,0 +1,51 @@
+{{ extends "global/Page.html" }}
+
+{{ block title }}
+    Demographics
+{{ endblock }}
+
+{{ block content }}
+
+    {{ formfield_errors 'Q41' }}
+    {{ formfield 'Q41' }}
+
+    {{ formfield_errors 'Q42' }}
+    {{ formfield 'Q42' }}
+
+    {{ formfield_errors 'Q43' }}
+    {{ formfield 'Q43' }}
+
+    {{ formfield_errors 'Q44' }}
+    {{ formfield 'Q44' }}
+
+    <div class="mb-3 _formfield" id="Q44_1_field" style="display: none;">
+        <label class="col-form-label" for="id_Q44_1">Please specify your gender identity:</label>
+        <div class="controls">
+            <input type="text" class="form-control" id="id_Q44_1" name="Q44_1">
+        </div>
+    </div>
+
+    {{ formfield_errors 'Q45' }}
+    {{ formfield 'Q45' }}
+
+
+    {{ next_button }}
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const genderRadios = document.querySelectorAll('input[name="Q44"]');
+        const otherGenderField = document.getElementById('Q44_1_field');
+
+        genderRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === "4") {
+                    otherGenderField.style.display = 'block';
+                } else {
+                    otherGenderField.style.display = 'none';
+                }
+            });
+        });
+    });
+    </script>
+{{ endblock }}
+
+

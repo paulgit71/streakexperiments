@@ -1,0 +1,48 @@
+{{ extends "global/Page.html" }}
+
+{{ block title }}
+    Decision Making Preferences
+{{ endblock }}
+
+{{ block content }}
+
+<p>
+    {{ formfield 'Q13f1' }}
+    {{ formfield 'Q13f2' }}
+    {{ formfield 'Q13f3' }}
+    {{ formfield 'Q13f4' }}
+    {{ formfield 'Q13f5' }}
+    {{ formfield 'Q13f6' }}
+    {{ formfield 'Q14' }}
+</p>
+    <p>
+        How will you rate your analytical ability? 
+    </p>
+<div class="row">
+    <div class="col">
+    </div>
+    <div class="col">
+        <p id="rangeValue">5</p>
+    </div>
+    <div class="col">
+    </div>
+<div>
+<div class="row">
+        <div class="col">
+            1 is very low
+        </div>
+        <div class="col-5">
+            <input type="range" name="Q15" min="0" max="10" value="5" step="1" class="form-range" oninput="rangeValue.innerText = this.value">
+        </div>
+        
+        <div class="col">
+            10 is very high
+        </div>
+        <div class="col">
+        </div>
+</div>
+<p></p>
+    {{ next_button }}
+{{ endblock }}
+
+

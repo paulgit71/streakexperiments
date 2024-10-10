@@ -1,0 +1,42 @@
+{{ extends "otree/Page.html" }}
+{{ load otree }}
+
+{{ block global_styles  }}
+<style>
+    body {
+        font-size: 12px;
+        user-select: none; /* Disables text selection */
+        -webkit-user-select: none; /* For Safari on iOS and macOS */
+        -moz-user-select: none; /* For Firefox */
+        -ms-user-select: none; /* For Internet Explorer */
+        -o-user-select: none; /* Older Opera versions */
+    }
+
+    /* For disabling long press selection on iOS */
+    body {
+        -webkit-touch-callout: none; /* Prevents the context menu on long-press */
+    }
+</style>
+{{ endblock }}
+
+{{ block global_scripts  }}
+<script>
+    // Prevents default copy behavior on Apple devices and other platforms
+    document.addEventListener('copy', function(e) {
+        e.preventDefault();
+    });
+
+    // Prevent context menu (right-click) on all devices
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
+
+    // Disable keyboard shortcuts for copy (Ctrl+C, Command+C)
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey && e.key === 'c') || (e.metaKey && e.key === 'c')) {
+            e.preventDefault();
+        }
+    });
+
+</script>
+{{ endblock }}

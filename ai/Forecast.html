@@ -1,0 +1,268 @@
+{{ extends "global/Page.html" }}
+
+{{ block title }}
+{{ endblock }}
+{{ block content }}
+
+{% if qn < 4 %}
+<p>
+    Q{{qn}}: The table below is the demand for first 20 weeks of a product at a firm, you are tasked with determining the demand quantity for the next period. A <strong> Traditional forecasting System (TFS) </strong> has been used to forecast demand for the next periods. The system predicts the demand to be <strong>{{week_data}} units.</strong><br>
+    <strong><i>Note: Cumulative Mean Absolute Percentage Error(CMAPE) is the average percentage error between predicted and actual values over a series of time periods. This gives overall sense of forecast accuracy.</i></strong>
+</p>
+{% endif %}
+
+    <style>
+        td.hidden {
+            display: none;
+        }
+    </style>
+
+    <table class="table border">
+      <tbody>
+        <tr>
+          <td>
+              <div class="mb-3 _formfield">
+                  <label class="col-form-label" for="id_Q{{qn_n}}">{{label}}</label>
+                  <div class="controls">
+                      <div id="id_Q{{qn_n}}" required="">
+                          <div class="form-check">
+                              <input class="form-check-input" type="radio" id="id_Q{{qn_n}}-0" name="Q{{qn_n}}" required="" value=1 onclick="toggleForecastField()">
+                              <label for="id_Q{{qn_n}}-0">Yes</label>
+                          </div>
+                          <div class="form-check">
+                              <input class="form-check-input" type="radio" id="id_Q{{qn_n}}-1" name="Q{{qn_n}}" required="" value=0 onclick="toggleForecastField()">
+                              <label for="id_Q{{qn_n}}-1">No</label>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="mb-3 _formfield" id="forecastField" style="display:none;">
+                  <label class="col-form-label" for="id_Q{{qn_n}}a"><b>If No, Please provide your forecast here</b></label>
+                  <div class="controls">
+                      <input type="number" class="form-control" inputmode="numeric" id="id_Q{{qn_n}}a" max="15000" min="100" name="Q{{qn_n}}a" value="">
+                  </div>
+              </div>
+          </td>
+          {% if start %}
+          <td>
+              <p class='text-danger'>
+                  Traditional System Forecast error for week {{prev_error.0}} is: {{prev_error.1}}
+                  <br><br>
+                  Your current CMAPE is: {{prev_error.3}}%.
+              </p>
+          </td>
+          <td>
+              <p class='text-danger'>
+                  Your forecast error for week {{prev_error.0}} is: {{prev_error.2}}
+                  <br><br><br>
+                  <button class="otree-btn-next btn btn-primary float-end">Next</button>
+              </p>
+          </td>
+          {% else %}
+            <td>
+            </td>
+            <td>
+                <p>
+                  <br><br><br>
+                  <button class="otree-btn-next btn btn-primary float-end">Next</button>
+                </p>
+            </td>
+          {% endif %}
+        </tr>
+      </tbody>
+    </table>
+    <div class="row">
+        <div class="col">
+            <div class="card chart-container">
+                <canvas id="chart" width="400" height="100"></canvas>
+            </div>
+
+            <script
+                src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js">
+                </script>
+                <script>
+                      function hideZeroCells() {
+                          // Select all td elements in the tbody
+                          const cells = document.querySelectorAll("tbody td");
+
+                          cells.forEach(cell => {
+                              // Check if the cell contains '0' (ignoring the first column, which is the week)
+                              if (parseInt(cell.textContent) === 0) {
+                                  cell.classList.add("hidden");  // Hide the cell with a zero value
+                              }
+                          });
+                      };
+
+                      // Call the function when the page loads
+                      window.onload = hideZeroCells;
+                  function toggleForecastField() {
+                      // Get the No radio button
+                      const noOption = document.getElementById('id_Q{{qn_n}}-1');
+
+                      // Get the forecast field div
+                      const forecastField = document.getElementById('forecastField');
+
+                      // Show the forecast field if "No" is selected, hide if "Yes" is selected
+                      if (noOption.checked) {
+                          forecastField.style.display = "block";
+                      } else {
+                          forecastField.style.display = "none";
+                      }
+                  };
+
+                  const filterDataAndLabels = (aiData, yourData, labels) => {
+                        const filteredAIData = [];
+                        const filteredYourData = [];
+                        const filteredLabels = [];
+
+                        labels.forEach((label, index) => {
+                          // Always include demand data labels
+                          filteredLabels.push(label);
+
+                          // Include AI and Your forecast data only from week 21 onward
+                          if (index >= 20) {  // Week 21 and beyond
+                            filteredAIData.push(aiData[index] !== 0 ? aiData[index] : null);
+                            filteredYourData.push(yourData[index] !== 0 ? yourData[index] : null);
+                          } else {
+                            filteredAIData.push(null);  // Null for weeks 1-20
+                            filteredYourData.push(null);  // Null for weeks 1-20
+                          }
+                        });
+
+                        return { filteredAIData, filteredYourData, filteredLabels };
+                      };
+                      const labelBlock = js_vars.label_block || [];
+                      const aiDataBlock = js_vars.ai_data_block || [];
+                      const yourDataBlock = js_vars.your_data_block || [];
+
+                      const filteredData = filterDataAndLabels(aiDataBlock, yourDataBlock, labelBlock);
+
+                      const ctx = document.getElementById("chart").getContext('2d');
+                      const myChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                          labels: js_vars.label_block,
+                          datasets: [{
+                              label: "Actual Demand",
+                              data: js_vars.actual_demand_block,
+                              backgroundColor: [
+                                'rgba(75, 192, 192, 0.2)',
+                              ],
+                              fill: false,
+                              borderColor: [
+                                'rgba(75, 192, 192)',
+                              ],
+                              borderWidth: 2,
+                              tension: 0.0
+                            },
+                          {
+                              label: "Traditional System forecast",
+                              data: filteredData.filteredAIData,
+                              backgroundColor: [
+                                'rgba(105, 0, 132, .2)',
+                              ],
+                              fill: false,
+                              borderColor: [
+                                'rgba(255, 99, 132, 0.8)',
+                              ],
+                              borderWidth: 2,
+                              tension: 0.0
+                            },
+                            {
+                              label: "Your forecast",
+                              data: filteredData.filteredYourData,
+                              backgroundColor: [
+                                'rgba(0, 137, 132, .2)',
+                              ],
+                              fill: false,
+                              borderColor: [
+                                'rgba(50, 150, 255, 1)',
+                              ],
+                              borderWidth: 2,
+                              tension: 0.0
+                            }
+                          ]
+                        },
+                        options: {
+                            responsive: true,
+                          scales: {
+                            yAxes: [{
+                              ticks: {
+                                beginAtZero: false,
+                                fontSize: 12,
+                              }
+                            }],
+                            xAxes: [{
+                              ticks: {
+                                fontSize: 12,
+                              }
+                            }]
+                          }
+                        },
+                      });
+                      // reload
+                      (() => {
+                            if (window.localStorage) {
+                                if (!localStorage.getItem('reload')) {
+                                    localStorage['reload'] = true;
+                                    window.location.reload();
+                                } else {
+                                    localStorage.removeItem('reload');
+                                }
+                            }
+                        })();
+            </script>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <table class="table table-bordered table-sm">
+              <thead>
+                <tr>
+                    <th colspan="8"  class="text-center">
+                    Forecast performance for Traditional System and Your Forecast
+                    </th>
+                </tr>
+              </thead>
+            </table>
+        </div>
+    </div>
+
+     <div class="row overflow-auto" style="height: 250px;">
+        <div class="col">
+            <table class="table table-bordered table-sm text-center">
+                <thead>
+                <tr>
+                  <th scope="col">Week</th>
+                  <th scope="col">Actual Demand</th>
+                  <th scope="col">Traditional System Forecast</th>
+                  <th scope="col">Traditional System Forecast Error</th>
+                  <th scope="col">CMAPE for Traditional System</th>
+                  <th scope="col">Your Forecast</th>
+                  <th scope="col">Your Forecast Error</th>
+                  <th scope="col">CMAPE for Your Forecast</th>
+                </tr>
+              </thead>
+              <tbody class="text-center">
+                    {% for data in table_data %}
+                    <tr class="text-center">
+                      <td>{{data.0}}</td>
+                      <td>{{data.1}}</td>
+                      <td>{{data.2}}</td>
+                      <td>{{data.3}}</td>
+                      <td>{{data.4}}%</td>
+                      <td>{{data.5}}</td>
+                      <td>{{data.6}}</td>
+                      <td>{{data.7}}%</td>
+                    </tr>
+                    {% endfor %}
+              </tbody>
+            </table>
+        </div>
+      </div>
+
+    <p></p>
+
+
+{{ endblock }}
