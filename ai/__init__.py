@@ -113,6 +113,7 @@ class Player(BasePlayer):
     Q40b = models.IntegerField()
 
     # demographic questions
+    Q80 = models.CharField(max_length=40, label='What is Your Prolific ID:', blank=True)
     Q41 = models.StringField(widget=widgets.RadioSelect,
                              label='What is the highest level of education you have completed or currently pursuing?',
                              choices=((1, 'Less than high school'), (2, 'High school graduate'), (3, 'Some college '),
@@ -192,6 +193,8 @@ class Player(BasePlayer):
                             label='2. Imagine we are throwing a five-sided die 50 times. On average, out of these 50 throws how many times would this five-sided die show an odd number (1, 3 or 5)?', )
     nt3 = models.FloatField(min=0, max=1,
                             label='3. In a forest 20% of mushrooms are red, 50% brown and 30% white. A red mushroom is poisonous with a probability of 20%. A mushroom that is not red is poisonous with a probability of 5%. What is the probability that a poisonous mushroom in the forest is red?', )
+
+    #Prolific ID
 
 
 # PAGES
@@ -721,7 +724,7 @@ class Block6(ConsentOk):
     template_name = "ai/Survey.html"
 
     form_model = 'player'
-    form_fields = ['Q41', 'Q42', 'Q43', 'Q44', 'Q44_1', 'Q45']
+    form_fields = ['Q80','Q41', 'Q42', 'Q43', 'Q44', 'Q44_1', 'Q45']
 
     @staticmethod
     def is_displayed(player):
@@ -758,9 +761,13 @@ class NT(ConsentOk):
     form_fields = ['nt1', 'nt2', 'nt3']
 
 
+
 class Block9(Page):
     # last page / thank you
     template_name = "ai/Thanks.html"
+
+
+
 
 
 # ----end other pages ---------
