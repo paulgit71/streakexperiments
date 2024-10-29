@@ -113,7 +113,7 @@ class Player(BasePlayer):
     Q40b = models.IntegerField()
 
     # demographic questions
-    Q80 = models.CharField(max_length=40, label='What is Your Prolific ID:', blank=True)
+    Q80 = models.CharField(max_length=40, label='What is Your Prolific ID (Provide it for any bonus payments):', blank=True)
     Q41 = models.StringField(widget=widgets.RadioSelect,
                              label='What is the highest level of education you have completed or currently pursuing?',
                              choices=((1, 'Less than high school'), (2, 'High school graduate'), (3, 'Some college '),
