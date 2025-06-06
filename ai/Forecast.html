@@ -264,5 +264,18 @@
 
     <p></p>
 
+<script>
+    let startTime = Date.now();
+    document.querySelector('form').addEventListener('submit', function () {
+        let endTime = Date.now();
+        let secondsSpent = (endTime - startTime) / 1000;
+        let hiddenField = document.createElement('input');
+        hiddenField.type = 'hidden';
+        hiddenField.name = 'time_w{{ qn_n }}';
+        hiddenField.value = secondsSpent.toFixed(2);
+        this.appendChild(hiddenField);
+    });
+</script>
+
 
 {{ endblock }}

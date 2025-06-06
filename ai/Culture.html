@@ -1,0 +1,23 @@
+{{ extends "global/Page.html" }}
+
+{{ block title }}
+    Personal Characteristics Questionnaire
+{{ endblock }}
+
+{{ block content }}
+
+<p>
+    {{ formfield 'PDI' }}
+    {{ formfield 'IDV' }}
+    {{ formfield 'MAS' }}
+    {{ formfield 'UAI' }}
+    {{ formfield 'LTO' }}
+    {{ formfield 'IVR' }}
+    {{ formfield 'MON' }}
+</p>
+
+<p></p>
+    {{ next_button }}
+{{ endblock }}
+
+

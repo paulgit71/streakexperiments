@@ -1,13 +1,44 @@
 {{ extends "global/Page.html" }}
 
 {{ block title }}
-   <p> <strong> Task 2  </strong> </p>
-Please answer the following to the best of your ability. Do not use any outside resources. This will help us benchmark your responses
+<p><strong> Task 2 </strong></p>
+Please answer the following to the best of your ability. Do not use any outside resources. This will help us benchmark your responses.
 {{ endblock }}
 
 {{ block content }}
 
-    {{ formfields }}
+    {% for field in form %}
+        {% if not field.name.endswith('_time') %}
+            {{ field.label }}
+            {{ field }}
+        {% endif %}
+    {% endfor %}
 
     {{ next_button }}
+
+    <script>
+        const questionIds = ['nt1', 'nt2', 'nt3'];
+        let timers = {};
+
+        questionIds.forEach(id => {
+            let element = document.querySelector(`[name="${id}"]`);
+            if (element) {
+                element.addEventListener('focus', () => {
+                    timers[id] = Date.now();
+                }, { once: true });
+
+                element.addEventListener('change', () => {
+                    if (timers[id]) {
+                        let timeSpent = (Date.now() - timers[id]) / 1000;
+                        let hiddenField = document.createElement('input');
+                        hiddenField.type = 'hidden';
+                        hiddenField.name = `${id}_time`;
+                        hiddenField.value = timeSpent.toFixed(2);
+                        document.querySelector('form').appendChild(hiddenField);
+                    }
+                });
+            }
+        });
+    </script>
+
 {{ endblock }}

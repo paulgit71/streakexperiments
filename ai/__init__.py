@@ -111,9 +111,39 @@ class Player(BasePlayer):
     Q40 = models.BooleanField(label='')
     Q40a = make_field()
     Q40b = models.IntegerField()
+    # Time spent on each forecast page
+    time_w21 = models.FloatField()
+    time_w22 = models.FloatField()
+    time_w23 = models.FloatField()
+    time_w24 = models.FloatField()
+    time_w25 = models.FloatField()
+    time_w26 = models.FloatField()
+    time_w27 = models.FloatField()
+    time_w28 = models.FloatField()
+    time_w29 = models.FloatField()
+    time_w30 = models.FloatField()
+    time_w31 = models.FloatField()
+    time_w32 = models.FloatField()
+    time_w33 = models.FloatField()
+    time_w34 = models.FloatField()
+    time_w35 = models.FloatField()
+    time_w36 = models.FloatField()
+    time_w37 = models.FloatField()
+    time_w38 = models.FloatField()
+    time_w39 = models.FloatField()
+    time_w40 = models.FloatField()
+    # CAT question time tracking
+    cat1_time = models.FloatField(blank=True, default = 0.0)
+    cat2_time = models.FloatField(blank=True, default = 0.0)
+    cat3_time = models.FloatField(blank=True, default = 0.0)
+    cat4_time = models.FloatField(blank=True, default = 0.0)
+
+    # NT question time tracking
+    nt1_time = models.FloatField(blank=True, default=0.0)
+    nt2_time = models.FloatField(blank=True, default=0.0)
+    nt3_time = models.FloatField(blank=True, default=0.0)
 
     # demographic questions
-    Q80 = models.CharField(max_length=40, label='What is Your Prolific ID (Provide it for any bonus payments):', blank=True)
     Q41 = models.StringField(widget=widgets.RadioSelect,
                              label='What is the highest level of education you have completed or currently pursuing?',
                              choices=((1, 'Less than high school'), (2, 'High school graduate'), (3, 'Some college '),
@@ -122,13 +152,13 @@ class Player(BasePlayer):
     Q42 = models.IntegerField(label='What is your age?', min=18, max=120)
     Q43 = models.StringField(widget=widgets.RadioSelect, label='What is your current annual level of income?', choices=(
     (1, 'Less than $20,000'), (2, '$20,000 - $39,999'), (3, '$40,000 - $59,999'), (4, '$60,000 - $79,999'),
-    (5, '$80,000 - $99,999'), (11, '$100,000 - $149,999'), (12, 'More than $150,000')))
+    (5, '$80,000 - $99,999'), (6, '$100,000 - $149,999'), (7, 'More than $150,000')))
     Q44 = models.StringField(widget=widgets.RadioSelect, label='What is your gender?',
                              choices=((1, 'Male'), (2, 'Female'), (3, 'Non-Binary'), (4, 'Other')))
     Q44_1 = models.StringField(blank=True)  # other gender
     Q45 = models.StringField(widget=widgets.RadioSelect, label='Choose one ethnicity you consider yourself to be.',
                              choices=((1, 'White'), (2, 'Black or African American'), (3, 'Hispanic'),
-                                      (21, 'American Indian or Alaska Native'), (4, 'Asian'),
+                                      (7, 'American Indian or Alaska Native'), (4, 'Asian'),
                                       (5, 'Native Hawaiian or Pacific Islander'), (6, 'Other')))
 
     # forecasting questions
@@ -139,7 +169,7 @@ class Player(BasePlayer):
     (1, 'Extremely uncomfortable'), (2, 'Somewhat uncomfortable'), (3, 'Neither comfortable nor uncomfortable'),
     (4, 'Somewhat comfortable'), (5, 'Extremely comfortable')))
     Q48 = models.StringField(widget=widgets.RadioSelect,
-                             label="Have you used or are you using a Traditional forecasting system such as Exponential Smoothing for modeling or prediction?",
+                             label="Have you used or are you using a AI for modeling or prediction?",
                              choices=(
                              (1, 'Definitely not'), (2, 'Probably not'), (3, 'Might or might not'), (4, 'Probably yes'),
                              (5, 'Definitely yes')))
@@ -163,6 +193,38 @@ class Player(BasePlayer):
     Q13f6 = models.IntegerField(label='Investing 10% of your annual income in a new business venture. ', choices=(
     (1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')),
                                 widget=widgets.RadioSelectHorizontal)
+
+
+    # Cultural Questions
+    PDI = models.IntegerField(label='Please think of an ideal job, disregarding your present job, if you have one. In choosing an ideal job, how important would it be to have a boss(direct supervisor) you can respect?', choices=(
+    (1, 'Very unimportant'), (2, 'Unimportant'), (3, 'Neither Unimportant nor Important'), (4, 'Important'), (5, 'Very important')),
+                                widget=widgets.RadioSelectHorizontal)
+    IDV = models.IntegerField(label='Please think of an ideal job, disregarding your present job, if you have one. In choosing an ideal job, how important would it be to have sufficient time for your personal or home life?', choices=(
+    (1, 'Very unimportant'), (2, 'Unimportant'), (3, 'Neither Unimportant nor Important'), (4, 'Important'), (5, 'Very important')),
+                                widget=widgets.RadioSelectHorizontal)
+    MAS = models.IntegerField(label='Please think of an ideal job, disregarding your present job, if you have one. In choosing an ideal job, how important would it be to get recognition for good performance?', choices=(
+    (1, 'Very unimportant'), (2, 'Unimportant'), (3, 'Neither Unimportant nor Important'), (4, 'Important'), (5, 'Very important')),
+                                widget=widgets.RadioSelectHorizontal)
+    UAI = models.IntegerField(label='How often do you feel nervous or tense?', choices=(
+    (1, 'Never'), (2, 'Rarely'), (3, 'Sometimes'), (4, 'Often'), (5, 'Always')),
+                                widget=widgets.RadioSelectHorizontal)
+    LTO = models.IntegerField(label='To what extent do you agree with the following statement: We should honor our heroes of the past', choices=(
+        (1, 'Strongly Disagree'), (2, 'Disagree'), (3, 'Neither Agree or Disagree'), (4, 'Agree'), (5, 'Strongly Agree')),
+                              widget=widgets.RadioSelectHorizontal)
+    IVR = models.IntegerField(label = 'In your private life, how important is keeping time free for fun?', choices = (
+    (1, 'Very unimportant'), (2, 'Unimportant'), (3, 'Neither Unimportant nor Important'), (4, 'Important'), (5, 'Very important')),
+                              widget=widgets.RadioSelectHorizontal)
+    MON = models.IntegerField(label = 'How proud are you to be a citizen of your country?', choices = (
+    (1, 'Not at all proud'), (2, 'Slightly proud'), (3, 'Moderately proud'), (4, 'Proud'), (5, 'Very Proud')),
+                              widget=widgets.RadioSelectHorizontal)
+
+
+
+
+
+
+
+
 
     Q14 = models.IntegerField(label='How many forecasting courses have you taken in college?',
                               choices=((0, 'None'), (1, '1'), (2, '2 or more')), widget=widgets.RadioSelect)
@@ -189,16 +251,46 @@ class Player(BasePlayer):
     # NT
     nt1 = models.FloatField(min=0, max=1,
                             label='1. Out of 1,000 people in a small town 500 are members of a choir. Out of these 500 members in the choir 100 are men. Out of the 500 inhabitants that are not in the choir 300 are men. What is the probability that a randomly drawn man is a member of the choir?', )
-    nt2 = models.FloatField(min=0, max=1,
+    nt2 = models.FloatField(min=0, max=1000,
                             label='2. Imagine we are throwing a five-sided die 50 times. On average, out of these 50 throws how many times would this five-sided die show an odd number (1, 3 or 5)?', )
     nt3 = models.FloatField(min=0, max=1,
                             label='3. In a forest 20% of mushrooms are red, 50% brown and 30% white. A red mushroom is poisonous with a probability of 20%. A mushroom that is not red is poisonous with a probability of 5%. What is the probability that a poisonous mushroom in the forest is red?', )
+    name = models.StringField(label="")
+    country = models.StringField(label="")
+    capital = models.StringField(label="")
+    state = models.StringField(label="")
+    length_of_stay = models.IntegerField(label="")
 
-    #Prolific ID
+
+
+    # save the errors in a dict
+    Q21_cmape = models.StringField()
+    Q22_cmape = models.StringField()
+    Q23_cmape = models.StringField()
+    Q24_cmape = models.StringField()
+    Q25_cmape = models.StringField()
+    Q26_cmape = models.StringField()
+    Q27_cmape = models.StringField()
+    Q28_cmape = models.StringField()
+    Q29_cmape = models.StringField()
+    Q30_cmape = models.StringField()
+    Q31_cmape = models.StringField()
+    Q32_cmape = models.StringField()
+    Q33_cmape = models.StringField()
+    Q34_cmape = models.StringField()
+    Q35_cmape = models.StringField()
+    Q36_cmape = models.StringField()
+    Q37_cmape = models.StringField()
+    Q38_cmape = models.StringField()
+    Q39_cmape = models.StringField()
+    Q40_cmape = models.StringField()
 
 
 # PAGES
 
+def name_error_message(player, value):
+    if len(value) > 60:
+        return 'Error, your name cannot contain more than 60 characters!'
 
 class Consent(Page):
     form_model = 'player'
@@ -214,6 +306,11 @@ class ConsentOk(Page):
     @staticmethod
     def is_displayed(player):
         return player.consent
+
+
+class Name(ConsentOk):
+    form_model = 'player'
+    form_fields = ['name', 'country', 'capital', 'state', 'length_of_stay']
 
 
 # --- get method for player data
@@ -318,17 +415,14 @@ class BlockQs(ConsentOk):
 
         table_data_horizontal = []
 
-        if prev == 0:
-            table_data = [[]]
-        else:
-            import ast
-            table_data = ast.literal_eval(player.table_data)
-            # reshape the data
-            for j in reversed(range(len(table_data[0]))):
-                row_data = []
-                for i in table_data:
-                    row_data.append(i[j])
-                table_data_horizontal.append(row_data)
+        import ast
+        table_data = ast.literal_eval(player.table_data)
+        # reshape the data
+        for j in reversed(range(len(table_data[0]))):
+            row_data = []
+            for i in table_data:
+                row_data.append(i[j])
+            table_data_horizontal.append(row_data)
 
         current = prev + 1
         qn_n = current + 20
@@ -336,6 +430,7 @@ class BlockQs(ConsentOk):
         # get prev round data, and calculate ai error, forecast error
         if prev == 0:
             prev_error = []
+            player.participant.vars['cmape_error'] = "None"
         else:
             if player.field_maybe_none(f'Q{prev + 20}'):
                 prev_data = C.ai_data[prev - 1]
@@ -344,7 +439,10 @@ class BlockQs(ConsentOk):
 
             ai_error = abs(C.demand_data_block[prev - 1] - C.ai_data[prev - 1])
             your_error = abs(C.demand_data_block[prev - 1] - prev_data)
-            prev_error = [prev + 20, ai_error, your_error, get_cmape_error(player)[1][-1]]
+            cmape_error = get_cmape_error(player)[1][-1]
+            prev_error = [prev + 20, ai_error, your_error, cmape_error]
+            # save the cmape error
+            player.participant.vars['cmape_error'] = f"{cmape_error}%"
 
         return dict(
             qn=current,
@@ -475,7 +573,7 @@ class Graph(ConsentOk):
 # each question on a separate page ---
 class BlockQ21(BlockQs):
     form_model = 'player'
-    form_fields = ['Q21', 'Q21a']
+    form_fields = ['Q21', 'Q21a', 'time_w21']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -485,11 +583,14 @@ class BlockQ21(BlockQs):
         player.participant.vars['prev'] = 1
         # save the ai data value
         player.Q21b = C.ai_data[0]
+        player.Q21_cmape = player.participant.vars['cmape_error']
+      #  player.time_w21 = player._time_on_page
+
 
 
 class BlockQ22(BlockQs):
     form_model = 'player'
-    form_fields = ['Q22', 'Q22a']
+    form_fields = ['Q22', 'Q22a', 'time_w22']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -497,11 +598,13 @@ class BlockQ22(BlockQs):
         player.participant.vars['prev'] = 2
         # save the ai data value
         player.Q22b = C.ai_data[1]
+        player.Q22_cmape = player.participant.vars['cmape_error']
+       # player.time_w22 = player._time_on_page
 
 
 class BlockQ23(BlockQs):
     form_model = 'player'
-    form_fields = ['Q23', 'Q23a']
+    form_fields = ['Q23', 'Q23a', 'time_w23']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -509,11 +612,13 @@ class BlockQ23(BlockQs):
         player.participant.vars['prev'] = 3
         # save the ai data value
         player.Q23b = C.ai_data[2]
+        player.Q23_cmape = player.participant.vars['cmape_error']
+       # player.time_w23 = player._time_on_page
 
 
 class BlockQ24(BlockQs):
     form_model = 'player'
-    form_fields = ['Q24', 'Q24a']
+    form_fields = ['Q24', 'Q24a', 'time_w24']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -521,11 +626,13 @@ class BlockQ24(BlockQs):
         player.participant.vars['prev'] = 4
         # save the ai data value
         player.Q24b = C.ai_data[3]
+        player.Q24_cmape = player.participant.vars['cmape_error']
+        #player.time_w24 = player._time_on_page
 
 
 class BlockQ25(BlockQs):
     form_model = 'player'
-    form_fields = ['Q25', 'Q25a']
+    form_fields = ['Q25', 'Q25a', 'time_w25']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -533,11 +640,14 @@ class BlockQ25(BlockQs):
         player.participant.vars['prev'] = 5
         # save the ai data value
         player.Q25b = C.ai_data[4]
+        player.Q25_cmape = player.participant.vars['cmape_error']
+        #player.time_w25 = player._time_on_page
+
 
 
 class BlockQ26(BlockQs):
     form_model = 'player'
-    form_fields = ['Q26', 'Q26a']
+    form_fields = ['Q26', 'Q26a', 'time_w26']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -545,11 +655,14 @@ class BlockQ26(BlockQs):
         player.participant.vars['prev'] = 6
         # save the ai data value
         player.Q26b = C.ai_data[5]
+        player.Q26_cmape = player.participant.vars['cmape_error']
+        #player.time_w26 = player._time_on_page
+
 
 
 class BlockQ27(BlockQs):
     form_model = 'player'
-    form_fields = ['Q27', 'Q27a']
+    form_fields = ['Q27', 'Q27a', 'time_w27']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -557,11 +670,14 @@ class BlockQ27(BlockQs):
         player.participant.vars['prev'] = 7
         # save the ai data value
         player.Q27b = C.ai_data[6]
+        player.Q27_cmape = player.participant.vars['cmape_error']
+        #player.time_w27 = player._time_on_page
+
 
 
 class BlockQ28(BlockQs):
     form_model = 'player'
-    form_fields = ['Q28', 'Q28a']
+    form_fields = ['Q28', 'Q28a', 'time_w28']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -569,11 +685,14 @@ class BlockQ28(BlockQs):
         player.participant.vars['prev'] = 8
         # save the ai data value
         player.Q28b = C.ai_data[7]
+        player.Q28_cmape = player.participant.vars['cmape_error']
+        #player.time_w28 = player._time_on_page
+
 
 
 class BlockQ29(BlockQs):
     form_model = 'player'
-    form_fields = ['Q29', 'Q29a']
+    form_fields = ['Q29', 'Q29a', 'time_w29']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -581,11 +700,14 @@ class BlockQ29(BlockQs):
         player.participant.vars['prev'] = 9
         # save the ai data value
         player.Q29b = C.ai_data[8]
+        player.Q29_cmape = player.participant.vars['cmape_error']
+        #player.time_w29 = player._time_on_page
+
 
 
 class BlockQ30(BlockQs):
     form_model = 'player'
-    form_fields = ['Q30', 'Q30a']
+    form_fields = ['Q30', 'Q30a', 'time_w30']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -593,11 +715,13 @@ class BlockQ30(BlockQs):
         player.participant.vars['prev'] = 10
         # save the ai data value
         player.Q30b = C.ai_data[9]
+        player.Q30_cmape = player.participant.vars['cmape_error']
+        #player.time_w30 = player._time_on_page
 
 
 class BlockQ31(BlockQs):
     form_model = 'player'
-    form_fields = ['Q31', 'Q31a']
+    form_fields = ['Q31', 'Q31a', 'time_w31']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -605,11 +729,13 @@ class BlockQ31(BlockQs):
         player.participant.vars['prev'] = 11
         # save the ai data value
         player.Q31b = C.ai_data[10]
+        player.Q31_cmape = player.participant.vars['cmape_error']
+        #player.time_w31 = player._time_on_page
 
 
 class BlockQ32(BlockQs):
     form_model = 'player'
-    form_fields = ['Q32', 'Q32a']
+    form_fields = ['Q32', 'Q32a', 'time_w32']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -617,11 +743,13 @@ class BlockQ32(BlockQs):
         player.participant.vars['prev'] = 12
         # save the ai data value
         player.Q32b = C.ai_data[11]
+        player.Q32_cmape = player.participant.vars['cmape_error']
+        #player.time_w32 = player._time_on_page
 
 
 class BlockQ33(BlockQs):
     form_model = 'player'
-    form_fields = ['Q33', 'Q33a']
+    form_fields = ['Q33', 'Q33a', 'time_w33']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -629,11 +757,13 @@ class BlockQ33(BlockQs):
         player.participant.vars['prev'] = 13
         # save the ai data value
         player.Q33b = C.ai_data[12]
+        player.Q33_cmape = player.participant.vars['cmape_error']
+        #player.time_w33 = player._time_on_page
 
 
 class BlockQ34(BlockQs):
     form_model = 'player'
-    form_fields = ['Q34', 'Q34a']
+    form_fields = ['Q34', 'Q34a', 'time_w34']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -641,11 +771,13 @@ class BlockQ34(BlockQs):
         player.participant.vars['prev'] = 14
         # save the ai data value
         player.Q34b = C.ai_data[13]
+        player.Q34_cmape = player.participant.vars['cmape_error']
+        #player.time_w34 = player._time_on_page
 
 
 class BlockQ35(BlockQs):
     form_model = 'player'
-    form_fields = ['Q35', 'Q35a']
+    form_fields = ['Q35', 'Q35a', 'time_w35']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -653,11 +785,13 @@ class BlockQ35(BlockQs):
         player.participant.vars['prev'] = 15
         # save the ai data value
         player.Q35b = C.ai_data[14]
+        player.Q35_cmape = player.participant.vars['cmape_error']
+        #player.time_w35 = player._time_on_page
 
 
 class BlockQ36(BlockQs):
     form_model = 'player'
-    form_fields = ['Q36', 'Q36a']
+    form_fields = ['Q36', 'Q36a', 'time_w36']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -665,11 +799,13 @@ class BlockQ36(BlockQs):
         player.participant.vars['prev'] = 16
         # save the ai data value
         player.Q36b = C.ai_data[15]
+        player.Q36_cmape = player.participant.vars['cmape_error']
+        #player.time_w36 = player._time_on_page
 
 
 class BlockQ37(BlockQs):
     form_model = 'player'
-    form_fields = ['Q37', 'Q37a']
+    form_fields = ['Q37', 'Q37a', 'time_w37']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -677,11 +813,13 @@ class BlockQ37(BlockQs):
         player.participant.vars['prev'] = 17
         # save the ai data value
         player.Q37b = C.ai_data[16]
+        player.Q37_cmape = player.participant.vars['cmape_error']
+        #player.time_w37 = player._time_on_page
 
 
 class BlockQ38(BlockQs):
     form_model = 'player'
-    form_fields = ['Q38', 'Q38a']
+    form_fields = ['Q38', 'Q38a', 'time_w38']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -689,11 +827,13 @@ class BlockQ38(BlockQs):
         player.participant.vars['prev'] = 18
         # save the ai data value
         player.Q38b = C.ai_data[17]
+        player.Q38_cmape = player.participant.vars['cmape_error']
+        # player.time_w38 = player._time_on_page
 
 
 class BlockQ39(BlockQs):
     form_model = 'player'
-    form_fields = ['Q39', 'Q39a']
+    form_fields = ['Q39', 'Q39a', 'time_w39']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -701,11 +841,13 @@ class BlockQ39(BlockQs):
         player.participant.vars['prev'] = 19
         # save the ai data value
         player.Q39b = C.ai_data[18]
+        player.Q39_cmape = player.participant.vars['cmape_error']
+        # player.time_w39 = player._time_on_page
 
 
 class BlockQ40(BlockQs):
     form_model = 'player'
-    form_fields = ['Q40', 'Q40a']
+    form_fields = ['Q40', 'Q40a', 'time_w40']
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
@@ -713,6 +855,8 @@ class BlockQ40(BlockQs):
         player.participant.vars['prev'] = 20
         # save the ai data value
         player.Q40b = C.ai_data[19]
+        player.Q40_cmape = player.participant.vars['cmape_error']
+        #player.time_w40 = player._time_on_page
 
 
 # -------------------------------
@@ -724,7 +868,7 @@ class Block6(ConsentOk):
     template_name = "ai/Survey.html"
 
     form_model = 'player'
-    form_fields = ['Q80','Q41', 'Q42', 'Q43', 'Q44', 'Q44_1', 'Q45']
+    form_fields = ['Q41', 'Q42', 'Q43', 'Q44', 'Q44_1', 'Q45']
 
     @staticmethod
     def is_displayed(player):
@@ -732,7 +876,10 @@ class Block6(ConsentOk):
 
 
 class Instruction(ConsentOk):
-    pass
+    def before_next_page(player, timeout_happened=False):
+        demand_block = C.past_demand_data_block.copy()
+        table_data_block = [[], demand_block, [], [], [], [],[], []]
+        player.table_data = str(table_data_block)
 
 
 class Block7(ConsentOk):
@@ -750,16 +897,23 @@ class Block8(ConsentOk):
     form_model = 'player'
     form_fields = ['Q13f1', 'Q13f2', 'Q13f3', 'Q13f4', 'Q13f5', 'Q13f6', 'Q14', 'Q15']
 
+class Block50(ConsentOk):
+    # Likelyhood - behavioral traits
+    template_name = "ai/Culture.html"
+
+    form_model = 'player'
+    form_fields = ['PDI', 'IDV', 'MAS', 'UAI', 'LTO', 'IVR', 'MON']
+
+
 
 class CAT(ConsentOk):
     form_model = 'player'
-    form_fields = ['cat1', 'cat2', 'cat3', 'cat4']
+    form_fields = ['cat1', 'cat2', 'cat3', 'cat4', 'cat1_time', 'cat2_time', 'cat3_time', 'cat4_time']
 
 
 class NT(ConsentOk):
     form_model = 'player'
-    form_fields = ['nt1', 'nt2', 'nt3']
-
+    form_fields = ['nt1', 'nt2', 'nt3', 'nt1_time', 'nt2_time', 'nt3_time']
 
 
 class Block9(Page):
@@ -767,11 +921,8 @@ class Block9(Page):
     template_name = "ai/Thanks.html"
 
 
-
-
-
 # ----end other pages ---------
 
-page_sequence = [Consent, Block6, Instruction, BlockQ21, BlockQ22, BlockQ23, BlockQ24, BlockQ25, BlockQ26, BlockQ27,
+page_sequence = [Consent,Name, Block6, Instruction, BlockQ21, BlockQ22, BlockQ23, BlockQ24, BlockQ25, BlockQ26, BlockQ27,
                  BlockQ28, BlockQ29, BlockQ30, BlockQ31, BlockQ32, BlockQ33, BlockQ34, BlockQ35, BlockQ36, BlockQ37,
-                 BlockQ38, BlockQ39, BlockQ40, Graph, Block7, Block8, CAT, NT, Block9]
+                 BlockQ38, BlockQ39, BlockQ40, Graph, Block7, Block8, CAT, NT, Block50, Block9]

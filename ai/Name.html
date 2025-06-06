@@ -1,0 +1,59 @@
+{{ extends "global/Page.html" }}
+
+{{ block title }}
+Compensation Summary
+{{ endblock }}
+
+{{ block content }}
+<strong>
+<ul>
+<li> Best 25% in terms of forecast accuracy: $1.2 base + $1.2 bonus. Total: $2.4 </li>
+<li> Second best 25% in terms of forecast accuracy: $1.2 base + $0.8 bonus. Total: $2 </li>
+<li> Third best 25% in terms of forecast accuracy: $1.2 base + $0.4 bonus. Total: $1.6 </li>
+<li> Bottom 25% in terms of forecast accuracy: $1.2 base + $0 bonus. Total: $1.2 </li>
+</ul>
+</strong>
+
+<h2>
+  Please provide your MTurk ID below for bonus pay
+</h2>
+
+<p>
+    {{ formfield 'name' }}
+</p>
+
+<h2>
+  What country do you live in now?
+</h2>
+
+<p>
+    {{ formfield 'country' }}
+</p>
+
+<h2>
+  In what state do you live now?
+</h2>
+<p>
+    {{ formfield 'state' }}
+</p>
+
+
+<h2>
+  What is the capital of the country in which you live now?
+</h2>
+
+<p>
+    {{ formfield 'capital' }}
+</p>
+
+
+<h2>
+  How long (in years) have you lived in this country?
+</h2>
+<p>
+    {{ formfield 'length_of_stay' }}
+</p>
+
+
+{{ next_button }}
+{{ endblock }}

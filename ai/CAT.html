@@ -1,20 +1,51 @@
 {{ extends "global/Page.html" }}
+
 {{ block title }}
-
-   <p>
-       <strong> Task 1  </strong>
-       </p>
-
-       <p>
-    Please answer the following to the best of your ability. Do not use any outside resources. This will help us benchmark your responses
+<p><strong> Task 1 </strong></p>
+<p>
+    Please answer the following to the best of your ability. Do not use any outside resources. This will help us benchmark your responses.
 </p>
-       {{ endblock }}
+{{ endblock }}
 
 {{ block content }}
 
-    {{ formfields }}
+    {% for field in form %}
+        {% if not field.name.endswith('_time') %}
+            {{ field.label }}
+            {{ field }}
+        {% endif %}
+    {% endfor %}
 
     {{ next_button }}
+
+    <script>
+    const questionIds = ['cat1', 'cat2', 'cat3', 'cat4'];
+    let timers = {};
+
+    questionIds.forEach(id => {
+        let elements = document.querySelectorAll(`[name="${id}"]`);
+        if (elements.length > 0) {
+            elements.forEach(el => {
+                el.addEventListener('focus', () => {
+                    if (!timers[id]) {
+                        timers[id] = Date.now();
+                    }
+                }, { once: true });
+
+                el.addEventListener('change', () => {
+                    if (timers[id]) {
+                        let timeSpent = (Date.now() - timers[id]) / 1000;
+                        let hiddenField = document.createElement('input');
+                        hiddenField.type = 'hidden';
+                        hiddenField.name = `${id}_time`;
+                        hiddenField.value = timeSpent.toFixed(2);
+                        document.querySelector('form').appendChild(hiddenField);
+                    }
+                });
+            });
+        }
+    });
+</script>
+
+
 {{ endblock }}
-
-
