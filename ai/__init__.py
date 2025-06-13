@@ -1,4 +1,7 @@
 from otree.api import *
+import random
+import string
+
 
 doc = """
 Your app description
@@ -260,7 +263,10 @@ class Player(BasePlayer):
     capital = models.StringField(label="")
     state = models.StringField(label="")
     length_of_stay = models.IntegerField(label="")
+    unique_code = models.StringField(blank=True)
 
+    def generate_unique_code(self):
+        self.unique_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 
     # save the errors in a dict
@@ -917,10 +923,13 @@ class NT(ConsentOk):
 
 
 class Block9(Page):
-    # last page / thank you
     template_name = "ai/Thanks.html"
 
-
+    @staticmethod
+    def vars_for_template(player):
+        if player.field_maybe_none('unique_code') is None:
+            player.generate_unique_code()
+        return dict(unique_code=player.unique_code)
 # ----end other pages ---------
 
 page_sequence = [Consent,Name, Block6, Instruction, BlockQ21, BlockQ22, BlockQ23, BlockQ24, BlockQ25, BlockQ26, BlockQ27,

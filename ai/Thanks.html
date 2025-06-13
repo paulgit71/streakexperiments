@@ -5,9 +5,19 @@
 {{ endblock }}
 
 {{ block content }}
+    <p>Your participation in this experiment is very much appreciated!</p>
 
-<p> Your participation in this experiment is very much appreciated! </p>
+    <p><strong>Your completion code:</strong> <span id="code" style="font-size: 1.5em;">{{ unique_code }}</span></p>
+    <button onclick="copyCode()">Copy to clipboard</button>
 
+    <script>
+        function copyCode() {
+            const code = document.getElementById("code").innerText;
+            navigator.clipboard.writeText(code).then(function () {
+                alert("Code copied to clipboard: " + code);
+            }, function (err) {
+                alert("Failed to copy code");
+            });
+        }
+    </script>
 {{ endblock }}
-
-
