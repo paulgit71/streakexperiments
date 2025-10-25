@@ -259,7 +259,65 @@ class Player(BasePlayer):
     nt3 = models.FloatField(min=0, max=1,
                             label='3. In a forest 20% of mushrooms are red, 50% brown and 30% white. A red mushroom is poisonous with a probability of 20%. A mushroom that is not red is poisonous with a probability of 5%. What is the probability that a poisonous mushroom in the forest is red?', )
     name = models.StringField(label="")
-    country = models.StringField(label="")
+    country = models.StringField(
+        label="",
+        choices=[
+            ("Albania", "Albania"),
+            ("Andorra", "Andorra"),
+            ("Armenia", "Armenia"),
+            ("Austria", "Austria"),
+            ("Azerbaijan", "Azerbaijan"),
+            ("Belarus", "Belarus"),
+            ("Belgium", "Belgium"),
+            ("Bosnia and Herzegovina", "Bosnia and Herzegovina"),
+            ("Bulgaria", "Bulgaria"),
+            ("Croatia", "Croatia"),
+            ("Cyprus", "Cyprus"),
+            ("Czechia (Czech Republic)", "Czechia (Czech Republic)"),
+            ("Denmark", "Denmark"),
+            ("Estonia", "Estonia"),
+            ("Finland", "Finland"),
+            ("France", "France"),
+            ("Georgia", "Georgia"),
+            ("Germany", "Germany"),
+            ("Greece", "Greece"),
+            ("Hungary", "Hungary"),
+            ("Iceland", "Iceland"),
+            ("Ireland", "Ireland"),
+            ("Italy", "Italy"),
+            ("Kosovo", "Kosovo"),
+            ("Latvia", "Latvia"),
+            ("Liechtenstein", "Liechtenstein"),
+            ("Lithuania", "Lithuania"),
+            ("Luxembourg", "Luxembourg"),
+            ("Malta", "Malta"),
+            ("Moldova", "Moldova"),
+            ("Monaco", "Monaco"),
+            ("Montenegro", "Montenegro"),
+            ("Netherlands", "Netherlands"),
+            ("North Macedonia", "North Macedonia"),
+            ("Norway", "Norway"),
+            ("Poland", "Poland"),
+            ("Portugal", "Portugal"),
+            ("Romania", "Romania"),
+            ("Russia", "Russia"),
+            ("San Marino", "San Marino"),
+            ("Serbia", "Serbia"),
+            ("Slovakia", "Slovakia"),
+            ("Slovenia", "Slovenia"),
+            ("Spain", "Spain"),
+            ("Sweden", "Sweden"),
+            ("Switzerland", "Switzerland"),
+            ("Turkey", "Turkey"),
+            ("Ukraine", "Ukraine"),
+            ("United Kingdom", "United Kingdom"),
+            ("Vatican City", "Vatican City"),
+        ],
+    )
+
+    def country_error_message(player, value):
+        if value == "":
+            return "Please select your country."
     capital = models.StringField(label="")
     state = models.StringField(label="")
     length_of_stay = models.IntegerField(label="")
