@@ -1,20 +1,48 @@
 {{ extends "global/Page.html" }}
 
 {{ block title }}
-   Please Read The Following Instructions Carefully
+Please Read The Following Instructions Carefully
 {{ endblock }}
 
 {{ block content }}
 
-    <p>
-        From the next pages, you will either accept the forecast results provided by a Traditional forecasting System (<strong> TFS</strong>) by choosing <strong> YES </strong> or reject by choosing <strong> NO. </strong> If you choose a <strong> NO,</strong> you will be required to provide your own forecast.
-    </p>
 <p>
-    Examples of Traditional Forecasting System are Exponential smoothing and Moving Averages
+    In this study, you will act as a demand planner. A <strong>statistical forecast system</strong> provides a demand forecast for each period.
+    From Period 6 onward, you will decide whether to accept the system forecast by choosing <strong>Yes</strong> or reject it by choosing <strong>No</strong>.
+    If you choose <strong>No</strong>, you will be required to provide your own forecast.
 </p>
-    <p>
-      The number of periods is between 18 and 24.
-    </p>
+
+<p>
+    Before making decisions in period 6, carefully observe the system's performance for Periods 1–5. You are not required to make any decisions yet.
+</p>
+
+<table class="table table-sm table-bordered text-center">
+    <thead>
+        <tr>
+            <th>Period</th>
+            <th>Actual Demand</th>
+            <th>System Forecast</th>
+            <th>System Error</th>
+            <th>System APE</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in observation_table %}
+        <tr>
+            <td>{{ row.0 }}</td>
+            <td>{{ row.1 }}</td>
+            <td>{{ row.2 }}</td>
+            <td>{{ row.3 }}</td>
+            <td>{{ row.4 }}%</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p>
+    A forecast is considered <strong>Accurate</strong> when its <strong> Absolute Percentage Error (APE) is low enough </strong>.
+    After the observation stage and after each later block of periods, you will answer two slider questions about your perceived system accuracy and confidence.
+</p>
 
 {{ next_button }}
 {{ endblock }}

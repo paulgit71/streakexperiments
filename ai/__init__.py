@@ -4,39 +4,138 @@ import string
 
 
 doc = """
-Your app description
+Hot-hand / gambler's fallacy experiment with statistical system-generated forecasts.
+Participants observe periods 1-5, then make forecast accept/reject decisions for periods 6-35.
+Perceived Accuracy Question (PAQ) and Confidence Level (CL) are asked after observation and after each streak block.
 """
+
+
+# ---------------------------------------------------------------------
+# Module-level constants.
+# IMPORTANT: These are defined outside class C to avoid Python class-scope
+# comprehension errors such as NameError: system_forecast is not defined.
+# ---------------------------------------------------------------------
+
+ACTUAL_DEMAND = [
+    1420, 915, 1688, 1215, 1876,
+    784, 1326, 1762, 1018, 1547,
+    1904, 846, 1135, 1642, 731,
+    1298, 1815, 972, 1486, 1193,
+    1711, 808, 1364, 1920, 1057,
+    1579, 889, 1238, 1746, 764,
+    1452, 1831, 997, 1605, 1186
+]
+
+SYSTEM_FORECAST = [
+    1368, 828, 1740, 1337, 1787,
+    809, 1293, 1822, 1045, 1491,
+    1976, 823, 1101, 1685, 762,
+    1249, 2030, 862, 1514, 1359,
+    1688, 799, 1501, 1945, 1158,
+    1522, 915, 1199, 1595, 737,
+    1480, 1884, 967, 1543, 1235
+]
+
+STAGE = [
+    'observation', 'observation', 'observation', 'observation', 'observation',
+    'decision', 'decision', 'decision', 'decision', 'decision',
+    'decision', 'decision', 'decision', 'decision', 'decision',
+    'decision', 'decision', 'decision', 'decision', 'decision',
+    'decision', 'decision', 'decision', 'decision', 'decision',
+    'decision', 'decision', 'decision', 'decision', 'decision',
+    'decision', 'decision', 'decision', 'decision', 'decision'
+]
+
+CONDITION = [
+    'observation', 'observation', 'observation', 'observation', 'observation',
+    'accuracy_streak', 'accuracy_streak',
+    'accuracy_streak', 'accuracy_streak', 'accuracy_streak',
+    'accuracy_streak', 'accuracy_streak', 'accuracy_streak', 'accuracy_streak', 'accuracy_streak',
+    'mixed_control', 'mixed_control', 'mixed_control', 'mixed_control', 'mixed_control',
+    'accuracy_streak', 'accuracy_streak',
+    'mixed_control', 'mixed_control', 'mixed_control',
+    'accuracy_streak', 'accuracy_streak', 'accuracy_streak',
+    'mixed_control', 'mixed_control',
+    'accuracy_streak', 'accuracy_streak', 'accuracy_streak', 'accuracy_streak', 'accuracy_streak'
+]
+
+BLOCK_ID = [
+    0, 0, 0, 0, 0,
+    1, 1,
+    2, 2, 2,
+    3, 3, 3, 3, 3,
+    4, 4, 4, 4, 4,
+    5, 5,
+    6, 6, 6,
+    7, 7, 7,
+    8, 8,
+    9, 9, 9, 9, 9
+]
+
+BLOCK_LENGTH = [
+    0, 0, 0, 0, 0,
+    2, 2,
+    3, 3, 3,
+    5, 5, 5, 5, 5,
+    5, 5, 5, 5, 5,
+    2, 2,
+    3, 3, 3,
+    3, 3, 3,
+    2, 2,
+    5, 5, 5, 5, 5
+]
+
+BLOCK_CONDITION = CONDITION.copy()
+
+# A = within 5% of actual demand; I = outside 5%.
+# Mixed-control rule:
+# length 2 -> 1 inaccurate; length 3 -> 2 inaccurate; length 5 -> 3 inaccurate.
+ACCURACY_FLAG = [
+    'A', 'I', 'A', 'I', 'A',
+    'A', 'A',
+    'A', 'A', 'A',
+    'A', 'A', 'A', 'A', 'A',
+    'A', 'I', 'I', 'A', 'I',
+    'A', 'A',
+    'I', 'A', 'I',
+    'A', 'A', 'A',
+    'I', 'A',
+    'A', 'A', 'A', 'A', 'A'
+]
+
+PAQ_PERIODS = [5, 7, 10, 15, 20, 22, 25, 28, 30, 35]
+
+LABEL_DICT = {
+    f'fa{i}': f'Period {i} system forecast value: {SYSTEM_FORECAST[i - 1]} units. Will you keep it?'
+    for i in range(1, 36)
+}
 
 
 class C(BaseConstants):
     NAME_IN_URL = 'ai'
     PLAYERS_PER_GROUP = None
     NUM_ROUNDS = 1
-    # AI forecast data
-    ai_data = [3038, 2906, 3585, 3359, 3460, 3792, 3963, 4061, 3411, 3580, 3317, 3546, 3308, 3129, 3868, 3658, 3776, 4075, 4266, 4377]
-    past_demand_data_block = [2913, 3238, 3340, 3401, 2898, 3055, 2807, 2990, 2764, 2666, 3246, 3137, 3248, 3494, 3582, 3798, 3189, 3288, 3075, 3209]
-    demand_data_block = [3013, 2805, 3525, 3391, 3544, 3713, 3919, 4041, 3238, 3429, 3166, 3546, 3346, 3159, 3901, 3651, 3776, 3995, 4325, 4613]
 
-    label_dict = {'Q21': 'Week 21 forecast value: 3038 units. Will you keep it?',
-                  'Q22': 'Week 22 forecast value: 2906 units. Will you keep it?',
-                  'Q23': 'Week 23 forecast value: 3585 units. Will you keep it?',
-                  'Q24': 'Week 24 forecast value: 3359 units. Will you keep it?',
-                  'Q25': 'Week 25 forecast value: 3460 units. Will you keep it?',
-                  'Q26': 'Week 26 forecast value: 3792 units. Will you keep it?',
-                  'Q27': 'Week 27 forecast value: 3963 units. Will you keep it?',
-                  'Q28': 'Week 28 forecast value: 4061 units. Will you keep it?',
-                  'Q29': 'Week 29 forecast value: 3411 units. Will you keep it?',
-                  'Q30': 'Week 30 forecast value: 3580 units. Will you keep it?',
-                  'Q31': 'Week 31 forecast value: 3317 units. Will you keep it?',
-                  'Q32': 'Week 32 forecast value: 3546 units. Will you keep it?',
-                  'Q33': 'Week 33 forecast value: 3308 units. Will you keep it?',
-                  'Q34': 'Week 34 forecast value: 3129 units. Will you keep it?',
-                  'Q35': 'Week 35 forecast value: 3868 units. Will you keep it?',
-                  'Q36': 'Week 36 forecast value: 3658 units. Will you keep it?',
-                  'Q37': 'Week 37 forecast value: 3776 units. Will you keep it?',
-                  'Q38': 'Week 38 forecast value: 4075 units. Will you keep it?',
-                  'Q39': 'Week 39 forecast value: 4266 units. Will you keep it?',
-                  'Q40': 'Week 40 forecast value: 4377 units. Will you keep it?'}
+    NUM_PERIODS = 35
+    OBSERVATION_PERIODS = 5
+    DECISION_PERIODS = list(range(6, 36))
+    PAQ_PERIODS = PAQ_PERIODS
+
+    # Data imported from system-forecast.xlsx / finalized hot-hand design.
+    actual_demand = ACTUAL_DEMAND
+    system_forecast = SYSTEM_FORECAST
+    stage = STAGE
+    condition = CONDITION
+    block_id = BLOCK_ID
+    block_length = BLOCK_LENGTH
+    block_condition = BLOCK_CONDITION
+    accuracy_flag = ACCURACY_FLAG
+
+    # Backward compatibility with old templates/functions.
+    ai_data = SYSTEM_FORECAST
+    demand_data_block = ACTUAL_DEMAND
+    past_demand_data_block = ACTUAL_DEMAND[:OBSERVATION_PERIODS]
+    label_dict = LABEL_DICT
 
 
 class Subsession(BaseSubsession):
@@ -47,99 +146,70 @@ class Group(BaseGroup):
     pass
 
 
-def make_field(label=None):
+def make_adjustment_field():
     return models.IntegerField(
-        label='<b>If No, Please provide your forecast here</b>', null=True, blank=True, min=100, max=15000
+        label='<b>If No, please provide your forecast here</b>',
+        null=True,
+        blank=True,
+        min=100,
+        max=5000,
+    )
+
+
+def make_accept_field():
+    return models.IntegerField(
+        label='',
+        choices=[(1, 'Yes'), (0, 'No')],
+        widget=widgets.RadioSelect,
+        null=True,
+        blank=True,
     )
 
 
 class Player(BasePlayer):
-    Q21 = models.BooleanField(label='')
-    Q21a = make_field()
-    Q21b = models.IntegerField()
-    Q22 = models.BooleanField(label='')
-    Q22a = make_field()
-    Q22b = models.IntegerField()
-    Q23 = models.BooleanField(label='')
-    Q23a = make_field()
-    Q23b = models.IntegerField()
-    Q24 = models.BooleanField(label='')
-    Q24a = make_field()
-    Q24b = models.IntegerField()
-    Q25 = models.BooleanField(label='')
-    Q25a = make_field()
-    Q25b = models.IntegerField()
-    Q26 = models.BooleanField(label='')
-    Q26a = make_field()
-    Q26b = models.IntegerField()
-    Q27 = models.BooleanField(label='')
-    Q27a = make_field()
-    Q27b = models.IntegerField()
-    Q28 = models.BooleanField(label='')
-    Q28a = make_field()
-    Q28b = models.IntegerField()
-    Q29 = models.BooleanField(label='')
-    Q29a = make_field()
-    Q29b = models.IntegerField()
-    Q30 = models.BooleanField(label='')
-    Q30a = make_field()
-    Q30b = models.IntegerField()
-    Q31 = models.BooleanField(label='')
-    Q31a = make_field()
-    Q31b = models.IntegerField()
-    Q32 = models.BooleanField(label='')
-    Q32a = make_field()
-    Q32b = models.IntegerField()
-    Q33 = models.BooleanField(label='')
-    Q33a = make_field()
-    Q33b = models.IntegerField()
-    Q34 = models.BooleanField(label='')
-    Q34a = make_field()
-    Q34b = models.IntegerField()
-    Q35 = models.BooleanField(label='')
-    Q35a = make_field()
-    Q35b = models.IntegerField()
-    Q36 = models.BooleanField(label='')
-    Q36a = make_field()
-    Q36b = models.IntegerField()
-    Q37 = models.BooleanField(label='')
-    Q37a = make_field()
-    Q37b = models.IntegerField()
-    Q38 = models.BooleanField(label='')
-    Q38a = make_field()
-    Q38b = models.IntegerField()
-    Q39 = models.BooleanField(label='')
-    Q39a = make_field()
-    Q39b = models.IntegerField()
-    Q40 = models.BooleanField(label='')
-    Q40a = make_field()
-    Q40b = models.IntegerField()
-    # Time spent on each forecast page
-    time_w21 = models.FloatField()
-    time_w22 = models.FloatField()
-    time_w23 = models.FloatField()
-    time_w24 = models.FloatField()
-    time_w25 = models.FloatField()
-    time_w26 = models.FloatField()
-    time_w27 = models.FloatField()
-    time_w28 = models.FloatField()
-    time_w29 = models.FloatField()
-    time_w30 = models.FloatField()
-    time_w31 = models.FloatField()
-    time_w32 = models.FloatField()
-    time_w33 = models.FloatField()
-    time_w34 = models.FloatField()
-    time_w35 = models.FloatField()
-    time_w36 = models.FloatField()
-    time_w37 = models.FloatField()
-    time_w38 = models.FloatField()
-    time_w39 = models.FloatField()
-    time_w40 = models.FloatField()
+    # Actual demand and system forecast values stored by period.
+    for i in range(1, 36):
+        locals()[f'ad{i}'] = models.IntegerField(blank=True, null=True)
+        locals()[f'sf{i}'] = models.IntegerField(blank=True, null=True)
+
+        # fa = forecast acceptance indicator. accept = 1, reject = 0.
+        locals()[f'fa{i}'] = make_accept_field()
+
+        # fmag = participant final forecast magnitude.
+        # If accept, fmag is automatically set to the system forecast.
+        # If reject, participant must enter a numeric value from 100 to 5000.
+        locals()[f'fmag{i}'] = make_adjustment_field()
+
+        locals()[f'time_w{i}'] = models.FloatField(blank=True, null=True)
+        locals()[f'system_error{i}'] = models.IntegerField(blank=True, null=True)
+        locals()[f'participant_error{i}'] = models.IntegerField(blank=True, null=True)
+        locals()[f'system_ape{i}'] = models.FloatField(blank=True, null=True)
+        locals()[f'participant_ape{i}'] = models.FloatField(blank=True, null=True)
+
+    # Perceived Accuracy Question and Confidence Level after observation and each streak block.
+    for i in range(1, 11):
+        locals()[f'PAQ{i}'] = models.IntegerField(
+            label='Based on the forecast system’s performance so far, how likely do you think the statistical forecast system is to be accurate in the next periods?',
+            min=0,
+            max=100,
+            blank=True,
+            null=True,
+        )
+        locals()[f'CL{i}'] = models.IntegerField(
+            label='How confident are you that the system forecast accuracy in the next periods will be?',
+            min=0,
+            max=100,
+            blank=True,
+            null=True,
+        )
+        locals()[f'time_paq{i}'] = models.FloatField(blank=True, null=True)
+    del i
+
     # CAT question time tracking
-    cat1_time = models.FloatField(blank=True, default = 0.0)
-    cat2_time = models.FloatField(blank=True, default = 0.0)
-    cat3_time = models.FloatField(blank=True, default = 0.0)
-    cat4_time = models.FloatField(blank=True, default = 0.0)
+    cat1_time = models.FloatField(blank=True, default=0.0)
+    cat2_time = models.FloatField(blank=True, default=0.0)
+    cat3_time = models.FloatField(blank=True, default=0.0)
+    cat4_time = models.FloatField(blank=True, default=0.0)
 
     # NT question time tracking
     nt1_time = models.FloatField(blank=True, default=0.0)
@@ -147,214 +217,315 @@ class Player(BasePlayer):
     nt3_time = models.FloatField(blank=True, default=0.0)
 
     # demographic questions
-    Q41 = models.StringField(widget=widgets.RadioSelect,
-                             label='What is the highest level of education you have completed or currently pursuing?',
-                             choices=((1, 'Less than high school'), (2, 'High school graduate'), (3, 'Some college '),
-                                      (4, '4 year degree'), (5, 'Professional degree (e.g. JD, MD, etc)'),
-                                      (6, 'Masters'), (7, 'Doctorate')))
+    Q41 = models.StringField(
+        widget=widgets.RadioSelect,
+        label='What is the highest level of education you have completed or currently pursuing?',
+        choices=(
+            (1, 'Less than high school'),
+            (2, 'High school graduate'),
+            (3, 'Some college'),
+            (4, '4 year degree'),
+            (5, 'Professional degree (e.g. JD, MD, etc)'),
+            (6, 'Masters'),
+            (7, 'Doctorate'),
+        ),
+    )
     Q42 = models.IntegerField(label='What is your age?', min=18, max=120)
-    Q43 = models.StringField(widget=widgets.RadioSelect, label='What is your current annual level of income?', choices=(
-    (1, 'Less than $20,000'), (2, '$20,000 - $39,999'), (3, '$40,000 - $59,999'), (4, '$60,000 - $79,999'),
-    (5, '$80,000 - $99,999'), (6, '$100,000 - $149,999'), (7, 'More than $150,000')))
-    Q44 = models.StringField(widget=widgets.RadioSelect, label='What is your gender?',
-                             choices=((1, 'Male'), (2, 'Female'), (3, 'Non-Binary'), (4, 'Other')))
-    Q44_1 = models.StringField(blank=True)  # other gender
-    Q45 = models.StringField(widget=widgets.RadioSelect, label='Choose one ethnicity you consider yourself to be.',
-                             choices=((1, 'White'), (2, 'Black or African American'), (3, 'Hispanic'),
-                                      (7, 'American Indian or Alaska Native'), (4, 'Asian'),
-                                      (5, 'Native Hawaiian or Pacific Islander'), (6, 'Other')))
-
-    # forecasting questions
-    Q46 = models.StringField(widget=widgets.RadioSelect,
-                             label="Have you engaged in forecasting at your company or work place?",
-                             choices=((1, 'Yes, I often do'), (2, 'Yes, I sometimes do'), (3, 'No, never at all')))
-    Q47 = models.StringField(widget=widgets.RadioSelect, label="How comfortable are you with forecasting?", choices=(
-    (1, 'Extremely uncomfortable'), (2, 'Somewhat uncomfortable'), (3, 'Neither comfortable nor uncomfortable'),
-    (4, 'Somewhat comfortable'), (5, 'Extremely comfortable')))
-    Q48 = models.StringField(widget=widgets.RadioSelect,
-                             label="Have you used or are you using a AI for modeling or prediction?",
-                             choices=(
-                             (1, 'Definitely not'), (2, 'Probably not'), (3, 'Might or might not'), (4, 'Probably yes'),
-                             (5, 'Definitely yes')))
-
-    # likelyhood questions - financial
-    Q13f1 = models.IntegerField(label='Betting 10% of your annual income at the horse races.', choices=(
-    (1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')),
-                                widget=widgets.RadioSelectHorizontal)
-    Q13f2 = models.IntegerField(label='Investing 10% of your annual income in a moderate growth mutual fund ', choices=(
-    (1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')),
-                                widget=widgets.RadioSelectHorizontal)
-    Q13f3 = models.IntegerField(label='Betting 10% of your annual income at a high-stake poker game', choices=(
-    (1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')),
-                                widget=widgets.RadioSelectHorizontal)
-    Q13f4 = models.IntegerField(label='Investing 10% of your annual income in a very speculative stock. ', choices=(
-    (1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')),
-                                widget=widgets.RadioSelectHorizontal)
-    Q13f5 = models.IntegerField(label='Betting 10% of your annual income on the outcome of a sporting event ', choices=(
-    (1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')),
-                                widget=widgets.RadioSelectHorizontal)
-    Q13f6 = models.IntegerField(label='Investing 10% of your annual income in a new business venture. ', choices=(
-    (1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')),
-                                widget=widgets.RadioSelectHorizontal)
-
-
-    # Cultural Questions
-    PDI = models.IntegerField(label='Please think of an ideal job, disregarding your present job, if you have one. In choosing an ideal job, how important would it be to have a boss(direct supervisor) you can respect?', choices=(
-    (1, 'Very unimportant'), (2, 'Unimportant'), (3, 'Neither Unimportant nor Important'), (4, 'Important'), (5, 'Very important')),
-                                widget=widgets.RadioSelectHorizontal)
-    IDV = models.IntegerField(label='Please think of an ideal job, disregarding your present job, if you have one. In choosing an ideal job, how important would it be to have sufficient time for your personal or home life?', choices=(
-    (1, 'Very unimportant'), (2, 'Unimportant'), (3, 'Neither Unimportant nor Important'), (4, 'Important'), (5, 'Very important')),
-                                widget=widgets.RadioSelectHorizontal)
-    MAS = models.IntegerField(label='Please think of an ideal job, disregarding your present job, if you have one. In choosing an ideal job, how important would it be to get recognition for good performance?', choices=(
-    (1, 'Very unimportant'), (2, 'Unimportant'), (3, 'Neither Unimportant nor Important'), (4, 'Important'), (5, 'Very important')),
-                                widget=widgets.RadioSelectHorizontal)
-    UAI = models.IntegerField(label='How often do you feel nervous or tense?', choices=(
-    (1, 'Never'), (2, 'Rarely'), (3, 'Sometimes'), (4, 'Often'), (5, 'Always')),
-                                widget=widgets.RadioSelectHorizontal)
-    LTO = models.IntegerField(label='To what extent do you agree with the following statement: We should honor our heroes of the past', choices=(
-        (1, 'Strongly Disagree'), (2, 'Disagree'), (3, 'Neither Agree or Disagree'), (4, 'Agree'), (5, 'Strongly Agree')),
-                              widget=widgets.RadioSelectHorizontal)
-    IVR = models.IntegerField(label = 'In your private life, how important is keeping time free for fun?', choices = (
-    (1, 'Very unimportant'), (2, 'Unimportant'), (3, 'Neither Unimportant nor Important'), (4, 'Important'), (5, 'Very important')),
-                              widget=widgets.RadioSelectHorizontal)
-    MON = models.IntegerField(label = 'How proud are you to be a citizen of your country?', choices = (
-    (1, 'Not at all proud'), (2, 'Slightly proud'), (3, 'Moderately proud'), (4, 'Proud'), (5, 'Very Proud')),
-                              widget=widgets.RadioSelectHorizontal)
-
-
-
-
-
-
-
-
-
-    Q14 = models.IntegerField(label='How many forecasting courses have you taken in college?',
-                              choices=((0, 'None'), (1, '1'), (2, '2 or more')), widget=widgets.RadioSelect)
-    Q15 = models.IntegerField(label='How will you rate your analytical ability?', choices=([i for i in range(0, 11)]),
-                              widget=widgets.RadioSelectHorizontal)
-
-    table_data = models.LongStringField()
-    consent = models.BooleanField(label="", choices=(
-    (True, "I am at least 18 years old, have read the consent information, and agree to take part in the research."),
-    (False, "No, I disagree")))
-
-    # CAT
-    cat1 = models.IntegerField(
-        label='1. If John can drink one barrel of water in 6 days, and Mary can drink one barrel of water in 12 days, how many days would it take them to drink one barrel of water together?', )
-    cat2 = models.IntegerField(
-        label='2. Jerry received both the 15th highest and the 15th lowest mark in the class. How many students are in the class?', )
-    cat3 = models.IntegerField(
-        label='3. A man buys a pig for $60, sells it for $70, buys it back for $80, and sells it finally for $90. How much has he made?', )
-    cat4 = models.StringField(widget=widgets.RadioSelect,
-                              label="4. Simon decided to invest $8,000 in the stock market one day early in 2008. Six months after he invested, on July 17, the stocks went down by 50%. Three months later, on October 17, the stocks went up 75%. At this point, what has happened to the $8,000 Simon invested?",
-                              choices=((1, 'broken even in the stock market'), (2, 'is ahead of where he began'),
-                                       (3, 'has lost money')))
-
-    # NT
-    nt1 = models.FloatField(min=0, max=1,
-                            label='1. Out of 1,000 people in a small town 500 are members of a choir. Out of these 500 members in the choir 100 are men. Out of the 500 inhabitants that are not in the choir 300 are men. What is the probability that a randomly drawn man is a member of the choir?', )
-    nt2 = models.FloatField(min=0, max=1000,
-                            label='2. Imagine we are throwing a five-sided die 50 times. On average, out of these 50 throws how many times would this five-sided die show an odd number (1, 3 or 5)?', )
-    nt3 = models.FloatField(min=0, max=1,
-                            label='3. In a forest 20% of mushrooms are red, 50% brown and 30% white. A red mushroom is poisonous with a probability of 20%. A mushroom that is not red is poisonous with a probability of 5%. What is the probability that a poisonous mushroom in the forest is red?', )
-    name = models.StringField(label="")
-    country = models.StringField(
-        label="",
-        choices=[
-            ("Albania", "Albania"),
-            ("Andorra", "Andorra"),
-            ("Armenia", "Armenia"),
-            ("Austria", "Austria"),
-            ("Azerbaijan", "Azerbaijan"),
-            ("Belarus", "Belarus"),
-            ("Belgium", "Belgium"),
-            ("Bosnia and Herzegovina", "Bosnia and Herzegovina"),
-            ("Bulgaria", "Bulgaria"),
-            ("Croatia", "Croatia"),
-            ("Cyprus", "Cyprus"),
-            ("Czechia (Czech Republic)", "Czechia (Czech Republic)"),
-            ("Denmark", "Denmark"),
-            ("Estonia", "Estonia"),
-            ("Finland", "Finland"),
-            ("France", "France"),
-            ("Georgia", "Georgia"),
-            ("Germany", "Germany"),
-            ("Greece", "Greece"),
-            ("Hungary", "Hungary"),
-            ("Iceland", "Iceland"),
-            ("Ireland", "Ireland"),
-            ("Italy", "Italy"),
-            ("Kosovo", "Kosovo"),
-            ("Latvia", "Latvia"),
-            ("Liechtenstein", "Liechtenstein"),
-            ("Lithuania", "Lithuania"),
-            ("Luxembourg", "Luxembourg"),
-            ("Malta", "Malta"),
-            ("Moldova", "Moldova"),
-            ("Monaco", "Monaco"),
-            ("Montenegro", "Montenegro"),
-            ("Netherlands", "Netherlands"),
-            ("North Macedonia", "North Macedonia"),
-            ("Norway", "Norway"),
-            ("Poland", "Poland"),
-            ("Portugal", "Portugal"),
-            ("Romania", "Romania"),
-            ("Russia", "Russia"),
-            ("San Marino", "San Marino"),
-            ("Serbia", "Serbia"),
-            ("Slovakia", "Slovakia"),
-            ("Slovenia", "Slovenia"),
-            ("Spain", "Spain"),
-            ("Sweden", "Sweden"),
-            ("Switzerland", "Switzerland"),
-            ("Turkey", "Turkey"),
-            ("Ukraine", "Ukraine"),
-            ("United Kingdom", "United Kingdom"),
-            ("Vatican City", "Vatican City"),
-        ],
+    Q43 = models.StringField(
+        widget=widgets.RadioSelect,
+        label='What is your current annual level of income?',
+        choices=(
+            (1, 'Less than $20,000'),
+            (2, '$20,000 - $39,999'),
+            (3, '$40,000 - $59,999'),
+            (4, '$60,000 - $79,999'),
+            (5, '$80,000 - $99,999'),
+            (6, '$100,000 - $149,999'),
+            (7, 'More than $150,000'),
+        ),
+    )
+    Q44 = models.StringField(
+        widget=widgets.RadioSelect,
+        label='What is your gender?',
+        choices=((1, 'Male'), (2, 'Female'), (3, 'Non-Binary'), (4, 'Other')),
+    )
+    Q44_1 = models.StringField(blank=True)
+    Q45 = models.StringField(
+        widget=widgets.RadioSelect,
+        label='Choose one ethnicity you consider yourself to be.',
+        choices=(
+            (1, 'White'),
+            (2, 'Black or African American'),
+            (3, 'Hispanic'),
+            (7, 'American Indian or Alaska Native'),
+            (4, 'Asian'),
+            (5, 'Native Hawaiian or Pacific Islander'),
+            (6, 'Other'),
+        ),
     )
 
-    def country_error_message(player, value):
-        if value == "":
-            return "Please select your country."
-    capital = models.StringField(label="")
-    state = models.StringField(label="")
-    length_of_stay = models.IntegerField(label="")
+    # forecasting questions
+    Q46 = models.StringField(
+        widget=widgets.RadioSelect,
+        label='Have you engaged in forecasting at your company or workplace?',
+        choices=((1, 'Yes, I often do'), (2, 'Yes, I sometimes do'), (3, 'No, never at all')),
+    )
+    Q47 = models.StringField(
+        widget=widgets.RadioSelect,
+        label='How comfortable are you with forecasting?',
+        choices=(
+            (1, 'Extremely uncomfortable'),
+            (2, 'Somewhat uncomfortable'),
+            (3, 'Neither comfortable nor uncomfortable'),
+            (4, 'Somewhat comfortable'),
+            (5, 'Extremely comfortable'),
+        ),
+    )
+    Q48 = models.StringField(
+        widget=widgets.RadioSelect,
+        label='Have you used or are you using a statistical, analytical, or AI-based tool for modeling or prediction?',
+        choices=(
+            (1, 'Definitely not'),
+            (2, 'Probably not'),
+            (3, 'Might or might not'),
+            (4, 'Probably yes'),
+            (5, 'Definitely yes'),
+        ),
+    )
+
+    # likelihood questions - financial risk preference
+    Q13f1 = models.IntegerField(label='Betting 10% of your annual income at the horse races.', choices=((1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')), widget=widgets.RadioSelectHorizontal)
+    Q13f2 = models.IntegerField(label='Investing 10% of your annual income in a moderate growth mutual fund.', choices=((1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')), widget=widgets.RadioSelectHorizontal)
+    Q13f3 = models.IntegerField(label='Betting 10% of your annual income at a high-stake poker game.', choices=((1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')), widget=widgets.RadioSelectHorizontal)
+    Q13f4 = models.IntegerField(label='Investing 10% of your annual income in a very speculative stock.', choices=((1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')), widget=widgets.RadioSelectHorizontal)
+    Q13f5 = models.IntegerField(label='Betting 10% of your annual income on the outcome of a sporting event.', choices=((1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')), widget=widgets.RadioSelectHorizontal)
+    Q13f6 = models.IntegerField(label='Investing 10% of your annual income in a new business venture.', choices=((1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')), widget=widgets.RadioSelectHorizontal)
+
+    # Cultural Questions
+    PDI = models.IntegerField(label='Please think of an ideal job, disregarding your present job, if you have one. In choosing an ideal job, how important would it be to have a boss (direct supervisor) you can respect?', choices=((1, 'Very unimportant'), (2, 'Unimportant'), (3, 'Neither Unimportant nor Important'), (4, 'Important'), (5, 'Very important')), widget=widgets.RadioSelectHorizontal)
+    IDV = models.IntegerField(label='Please think of an ideal job, disregarding your present job, if you have one. In choosing an ideal job, how important would it be to have sufficient time for your personal or home life?', choices=((1, 'Very unimportant'), (2, 'Unimportant'), (3, 'Neither Unimportant nor Important'), (4, 'Important'), (5, 'Very important')), widget=widgets.RadioSelectHorizontal)
+    MAS = models.IntegerField(label='Please think of an ideal job, disregarding your present job, if you have one. In choosing an ideal job, how important would it be to get recognition for good performance?', choices=((1, 'Very unimportant'), (2, 'Unimportant'), (3, 'Neither Unimportant nor Important'), (4, 'Important'), (5, 'Very important')), widget=widgets.RadioSelectHorizontal)
+    UAI = models.IntegerField(label='How often do you feel nervous or tense?', choices=((1, 'Never'), (2, 'Rarely'), (3, 'Sometimes'), (4, 'Often'), (5, 'Always')), widget=widgets.RadioSelectHorizontal)
+    LTO = models.IntegerField(label='To what extent do you agree with the following statement: We should honor our heroes of the past.', choices=((1, 'Strongly Disagree'), (2, 'Disagree'), (3, 'Neither Agree nor Disagree'), (4, 'Agree'), (5, 'Strongly Agree')), widget=widgets.RadioSelectHorizontal)
+    IVR = models.IntegerField(label='In your private life, how important is keeping time free for fun?', choices=((1, 'Very unimportant'), (2, 'Unimportant'), (3, 'Neither Unimportant nor Important'), (4, 'Important'), (5, 'Very important')), widget=widgets.RadioSelectHorizontal)
+    MON = models.IntegerField(label='How proud are you to be a citizen of your country?', choices=((1, 'Not at all proud'), (2, 'Slightly proud'), (3, 'Moderately proud'), (4, 'Proud'), (5, 'Very Proud')), widget=widgets.RadioSelectHorizontal)
+
+    Q14 = models.IntegerField(label='How many forecasting courses have you taken in college?', choices=((0, 'None'), (1, '1'), (2, '2 or more')), widget=widgets.RadioSelect)
+    Q15 = models.IntegerField(label='How will you rate your analytical ability?', min=0, max=10, blank=True, null=True)
+
+    table_data = models.LongStringField(blank=True)
+    consent = models.BooleanField(
+        label='',
+        choices=(
+            (True, 'I am at least 18 years old, have read the consent information, and agree to take part in the research.'),
+            (False, 'No, I disagree'),
+        ),
+    )
+
+    # CAT
+    cat1 = models.IntegerField(label='1. If John can drink one barrel of water in 6 days, and Mary can drink one barrel of water in 12 days, how many days would it take them to drink one barrel of water together?')
+    cat2 = models.IntegerField(label='2. Jerry received both the 15th highest and the 15th lowest mark in the class. How many students are in the class?')
+    cat3 = models.IntegerField(label='3. A man buys a pig for $60, sells it for $70, buys it back for $80, and sells it finally for $90. How much has he made?')
+    cat4 = models.StringField(
+        widget=widgets.RadioSelect,
+        label='4. Simon decided to invest $8,000 in the stock market one day early in 2008. Six months after he invested, on July 17, the stocks went down by 50%. Three months later, on October 17, the stocks went up 75%. At this point, what has happened to the $8,000 Simon invested?',
+        choices=((1, 'broken even in the stock market'), (2, 'is ahead of where he began'), (3, 'has lost money')),
+    )
+
+    # NT
+    nt1 = models.FloatField(min=0, max=1, label='1. Out of 1,000 people in a small town 500 are members of a choir. Out of these 500 members in the choir 100 are men. Out of the 500 inhabitants that are not in the choir 300 are men. What is the probability that a randomly drawn man is a member of the choir?')
+    nt2 = models.FloatField(min=0, max=1000, label='2. Imagine we are throwing a five-sided die 50 times. On average, out of these 50 throws how many times would this five-sided die show an odd number (1, 3 or 5)?')
+    nt3 = models.FloatField(min=0, max=1, label='3. In a forest 20% of mushrooms are red, 50% brown and 30% white. A red mushroom is poisonous with a probability of 20%. A mushroom that is not red is poisonous with a probability of 5%. What is the probability that a poisonous mushroom in the forest is red?')
+
+    name = models.StringField(label='')
+    country = models.StringField(label='')
+    capital = models.StringField(label='')
+    state = models.StringField(label='', blank=True)
+    length_of_stay = models.IntegerField(label='', min=0, max=120)
     unique_code = models.StringField(blank=True)
 
     def generate_unique_code(self):
         self.unique_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
 
-    # save the errors in a dict
-    Q21_cmape = models.StringField()
-    Q22_cmape = models.StringField()
-    Q23_cmape = models.StringField()
-    Q24_cmape = models.StringField()
-    Q25_cmape = models.StringField()
-    Q26_cmape = models.StringField()
-    Q27_cmape = models.StringField()
-    Q28_cmape = models.StringField()
-    Q29_cmape = models.StringField()
-    Q30_cmape = models.StringField()
-    Q31_cmape = models.StringField()
-    Q32_cmape = models.StringField()
-    Q33_cmape = models.StringField()
-    Q34_cmape = models.StringField()
-    Q35_cmape = models.StringField()
-    Q36_cmape = models.StringField()
-    Q37_cmape = models.StringField()
-    Q38_cmape = models.StringField()
-    Q39_cmape = models.StringField()
-    Q40_cmape = models.StringField()
+def creating_session(subsession):
+    for p in subsession.get_players():
+        for i in range(1, 36):
+            actual = C.actual_demand[i - 1]
+            system = C.system_forecast[i - 1]
+            setattr(p, f'ad{i}', actual)
+            setattr(p, f'sf{i}', system)
+            setattr(p, f'system_error{i}', abs(actual - system))
+            setattr(p, f'system_ape{i}', round(abs(actual - system) / actual * 100, 2))
+        p.participant.vars['prev'] = C.OBSERVATION_PERIODS
+        p.table_data = str(get_table_rows(p, C.OBSERVATION_PERIODS))
 
 
-# PAGES
+# -------------------------
+# Helper functions
+# -------------------------
 
-def name_error_message(player, value):
-    if len(value) > 60:
-        return 'Error, your name cannot contain more than 60 characters!'
+def period_info(period):
+    idx = period - 1
+    actual = C.actual_demand[idx]
+    system = C.system_forecast[idx]
+    return dict(
+        period=period,
+        actual=actual,
+        system=system,
+        stage=C.stage[idx],
+        condition=C.condition[idx],
+        block_id=C.block_id[idx],
+        block_length=C.block_length[idx],
+        block_condition=C.block_condition[idx],
+        accuracy_flag=C.accuracy_flag[idx],
+        system_error=abs(actual - system),
+        system_ape=round(abs(actual - system) / actual * 100, 2),
+    )
+
+
+def final_forecast_for_period(player, period):
+    fa = player.field_maybe_none(f'fa{period}')
+    fmag = player.field_maybe_none(f'fmag{period}')
+    if fa == 1:
+        return C.system_forecast[period - 1]
+    if fa == 0:
+        return fmag
+    return None
+
+
+def completed_periods(player):
+    return int(player.participant.vars.get('prev', C.OBSERVATION_PERIODS))
+
+
+def cmape(values):
+    if not values:
+        return []
+    out = []
+    total = 0
+    for i, value in enumerate(values):
+        total += value
+        out.append(round(total / (i + 1), 2))
+    return out
+
+
+def get_table_rows(player, upto_period=None):
+    if upto_period is None:
+        upto_period = completed_periods(player)
+
+    rows = []
+    system_apes = []
+    participant_apes = []
+
+    for period in range(1, upto_period + 1):
+        actual = C.actual_demand[period - 1]
+        system = C.system_forecast[period - 1]
+        system_error = abs(actual - system)
+        system_ape = round(system_error / actual * 100, 2)
+        system_apes.append(system_ape)
+
+        if period <= C.OBSERVATION_PERIODS:
+            your_forecast = ''
+            your_error = ''
+            your_cmape = ''
+        else:
+            your_forecast = final_forecast_for_period(player, period)
+            if your_forecast is None:
+                your_error = ''
+                your_cmape = ''
+            else:
+                your_error = abs(actual - your_forecast)
+                participant_ape = round(your_error / actual * 100, 2)
+                participant_apes.append(participant_ape)
+                your_cmape = cmape(participant_apes)[-1]
+
+        rows.append([
+            f'Period {period}',
+            actual,
+            system,
+            system_error,
+            cmape(system_apes)[-1],
+            your_forecast,
+            your_error,
+            your_cmape,
+        ])
+
+    return rows
+
+
+def chart_data(player, upto_period=None):
+    if upto_period is None:
+        upto_period = completed_periods(player)
+
+    labels = [f'Period {i}' for i in range(1, upto_period + 1)]
+    actual = C.actual_demand[:upto_period]
+    system = C.system_forecast[:upto_period]
+    your = []
+
+    for period in range(1, upto_period + 1):
+        if period <= C.OBSERVATION_PERIODS:
+            your.append(None)
+        else:
+            your.append(final_forecast_for_period(player, period))
+
+    return labels, actual, system, your
+
+
+def save_period_outcomes(player, period):
+    fa = player.field_maybe_none(f'fa{period}')
+    if fa == 1:
+        setattr(player, f'fmag{period}', C.system_forecast[period - 1])
+
+    final_value = final_forecast_for_period(player, period)
+    if final_value is not None:
+        actual = C.actual_demand[period - 1]
+        err = abs(actual - final_value)
+        setattr(player, f'participant_error{period}', err)
+        setattr(player, f'participant_ape{period}', round(err / actual * 100, 2))
+
+    player.participant.vars['prev'] = period
+    player.table_data = str(get_table_rows(player, period))
+
+
+def make_observation_table():
+    rows = []
+    for period in range(1, C.OBSERVATION_PERIODS + 1):
+        info = period_info(period)
+        rows.append([
+            period,
+            info['actual'],
+            info['system'],
+            info['system_error'],
+            info['system_ape'],
+            'Accurate' if info['accuracy_flag'] == 'A' else 'Inaccurate',
+        ])
+    return rows
+
+
+def paq_prior_rows(paq_number):
+    after_period = C.PAQ_PERIODS[paq_number - 1]
+    if paq_number == 1:
+        start_period = 1
+    else:
+        start_period = C.PAQ_PERIODS[paq_number - 2] + 1
+
+    rows = []
+    for period in range(start_period, after_period + 1):
+        info = period_info(period)
+        rows.append([
+            period,
+            info['actual'],
+            info['system'],
+            info['system_error'],
+            info['system_ape'],
+            'Accurate' if info['accuracy_flag'] == 'A' else 'Inaccurate',
+        ])
+    return rows
+
+
+# -------------------------
+# Page classes
+# -------------------------
 
 class Consent(Page):
     form_model = 'player'
@@ -362,11 +533,11 @@ class Consent(Page):
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
-        player.participant.vars['prev'] = 0
+        player.participant.vars['prev'] = C.OBSERVATION_PERIODS
+        player.table_data = str(get_table_rows(player, C.OBSERVATION_PERIODS))
 
 
 class ConsentOk(Page):
-    # only participate if they consent
     @staticmethod
     def is_displayed(player):
         return player.consent
@@ -377,619 +548,210 @@ class Name(ConsentOk):
     form_fields = ['name', 'country', 'capital', 'state', 'length_of_stay']
 
 
-# --- get method for player data
-def get_your_forecast_data_block(p):
-    # get the prev variable to determine the data range
-    prev = p.participant.vars['prev']
-    if prev == 0:
-        return []
+def name_error_message(player, value):
+    if value and len(value) > 60:
+        return 'Error, your name cannot contain more than 60 characters!'
 
-    data = []
-    forecast_data = []
-    agree_data = []
 
-    for i in range(21, 41):
-        agree_data.append(p.field_maybe_none(f'Q{i}'))
-        forecast_data.append(p.field_maybe_none(f'Q{i}a'))
-
-    for i in range(0, prev):
-        if agree_data[i]:
-            data.append(C.ai_data[i])
-        else:
-            data.append(forecast_data[i])
-    return data
-
-
-# ------
-
-# get CMAPE error
-def cumulative_average(numbers):
-    cumulative_list = []
-    total_sum = 0
-    for i, num in enumerate(numbers):
-        total_sum += num
-        average = round(total_sum / (i + 1), 2)
-        cumulative_list.append(average)
-    return cumulative_list
-
-
-def get_cmape_error(p):
-    prev = p.participant.vars['prev']
-    if prev == 0:
-        return []
-
-    # get all previous forecast
-    prev_ai_data = C.ai_data[:prev]
-    your_prev_data = []
-    for i in range(21, prev + 21):
-        if p.field_maybe_none(f'Q{i}'):
-            your_prev_data.append(C.ai_data[i - 21])
-        else:
-            your_prev_data.append(p.field_maybe_none(f'Q{i}a'))
-
-    n = len(prev_ai_data)
-
-    cmape_ai_error_block = []
-    cmape_your_error_block = []
-
-    for i in range(0, n):
-        ai_dd_diff = abs(C.demand_data_block[i] - prev_ai_data[i])
-        your_dd_diff = abs(C.demand_data_block[i] - your_prev_data[i])
-
-        ai_sum = round(ai_dd_diff / C.demand_data_block[i], 3) * 100
-        your_sum = round(your_dd_diff / C.demand_data_block[i], 3) * 100
-
-        cmape_ai_error_block.append(ai_sum)
-        cmape_your_error_block.append(your_sum)
-
-    return cumulative_average(cmape_ai_error_block), cumulative_average(cmape_your_error_block)
-
-
-class BlockQs(ConsentOk):
-    template_name = "ai/Forecast.html"
-
-    @staticmethod
-    def error_message(player, values):
-        v_list = []
-        for k, v in values.items():
-            v_list.append(k)
-            if v is False:
-                v_list.append(0)
-            elif v is True:
-                v_list.append(1)
-            elif v is None:
-                v_list.append(0)
-            else:
-                v_list.append(v)
-                # ['Q21', False, 'Q21a', None]
-        week = v_list[0][1:]
-        if v_list[1] == 0 and v_list[3] == 0:
-            return f'Please provide your forecast for week {week}!'
-        if v_list[1] == 1 and v_list[3]:
-            return f"You've selected to keep the forecast for week {week}!"
-
-    @staticmethod
-    def vars_for_template(player):
-        # get previous page
-        prev = player.participant.vars['prev']
-        # reset to 0 if 20
-        if prev == 20:
-            prev = 0
-            player.participant.vars['prev'] = prev
-
-        table_data_horizontal = []
-
-        import ast
-        table_data = ast.literal_eval(player.table_data)
-        # reshape the data
-        for j in reversed(range(len(table_data[0]))):
-            row_data = []
-            for i in table_data:
-                row_data.append(i[j])
-            table_data_horizontal.append(row_data)
-
-        current = prev + 1
-        qn_n = current + 20
-
-        # get prev round data, and calculate ai error, forecast error
-        if prev == 0:
-            prev_error = []
-            player.participant.vars['cmape_error'] = "None"
-        else:
-            if player.field_maybe_none(f'Q{prev + 20}'):
-                prev_data = C.ai_data[prev - 1]
-            else:
-                prev_data = player.field_maybe_none(f'Q{prev + 20}a')
-
-            ai_error = abs(C.demand_data_block[prev - 1] - C.ai_data[prev - 1])
-            your_error = abs(C.demand_data_block[prev - 1] - prev_data)
-            cmape_error = get_cmape_error(player)[1][-1]
-            prev_error = [prev + 20, ai_error, your_error, cmape_error]
-            # save the cmape error
-            player.participant.vars['cmape_error'] = f"{cmape_error}%"
-
-        return dict(
-            qn=current,
-            qn_n=qn_n,
-            label=C.label_dict['Q' + str(qn_n)],
-            week_data=C.ai_data[prev],
-            table_data=table_data_horizontal,
-            prev_error=prev_error,
-            start=False if prev == 0 else True,
-        )
-
-    @staticmethod
-    def js_vars(player):
-        prev = player.participant.vars['prev']
-
-        label_block = [f'Week {i}' for i in range(1, 21)]
-        demand_block = C.past_demand_data_block.copy()
-        ai_data_block = [0] * 20
-        your_data_block = [0] * 20
-        abs_ai_cmape = [0] * 20
-        abs_your_cmape = [0] * 20
-
-        if prev > 0:
-            dd_data = C.demand_data_block[:prev].copy()
-            ai_data = C.ai_data[:prev].copy()
-            your_data = get_your_forecast_data_block(player)
-
-            label_block.extend([f'Week {i}' for i in range(21, prev + 21)])
-            ai_data_block.extend(ai_data)
-            demand_block.extend(dd_data)
-            your_data_block.extend(your_data)
-
-            cmape_data_blocks = get_cmape_error(player)
-
-            # CMAPE blocks
-            abs_ai_cmape.extend(cmape_data_blocks[0])
-            abs_your_cmape.extend(cmape_data_blocks[1])
-
-        ai_forecast_error = [0] * 20
-        abs_forecast_error = [0] * 20
-
-        for i in range(20, len(label_block)):
-            abs_error = abs(demand_block[i] - your_data_block[i])
-            ai_error = abs(demand_block[i] - ai_data_block[i])
-            abs_forecast_error.extend([abs_error])
-            ai_forecast_error.extend([ai_error])
-        table_data_block = [label_block, demand_block, ai_data_block, ai_forecast_error, abs_ai_cmape, your_data_block,
-                            abs_forecast_error, abs_your_cmape]
-        player.table_data = str(table_data_block)
-
-        return dict(
-            label_block=label_block,
-            ai_data_block=ai_data_block,
-            your_data_block=your_data_block,
-            actual_demand_block=demand_block,
-        )
-
-
-class Graph(ConsentOk):
-    @staticmethod
-    def vars_for_template(player):
-        prev = player.participant.vars['prev']
-        table_data_horizontal = []
-
-        if prev == 0:
-            table_data = [[]]
-        else:
-            import ast
-            table_data = ast.literal_eval(player.table_data)
-            # reshape the data
-            for j in reversed(range(len(table_data[0]))):
-                row_data = []
-                for i in table_data:
-                    row_data.append(i[j])
-                table_data_horizontal.append(row_data)
-
-        return dict(
-            table_data=table_data_horizontal,
-        )
-
-    @staticmethod
-    def js_vars(player):
-        prev = player.participant.vars['prev']
-
-        label_block = [f'Week {i}' for i in range(1, 21)]
-        demand_block = C.past_demand_data_block.copy()
-        ai_data_block = [0] * 20
-        your_data_block = [0] * 20
-        abs_ai_cmape = [0] * 20
-        abs_your_cmape = [0] * 20
-
-        if prev > 0:
-            dd_data = C.demand_data_block[:prev].copy()
-            ai_data = C.ai_data[:prev].copy()
-            your_data = get_your_forecast_data_block(player)
-
-            label_block.extend([f'Week {i}' for i in range(21, prev + 21)])
-            ai_data_block.extend(ai_data)
-            demand_block.extend(dd_data)
-            your_data_block.extend(your_data)
-
-            cmape_data_blocks = get_cmape_error(player)
-
-            # CMAPE blocks
-            abs_ai_cmape.extend(cmape_data_blocks[0])
-            abs_your_cmape.extend(cmape_data_blocks[1])
-
-        ai_forecast_error = [0] * 20
-        abs_forecast_error = [0] * 20
-
-        for i in range(20, len(label_block)):
-            abs_error = abs(demand_block[i] - your_data_block[i])
-            ai_error = abs(demand_block[i] - ai_data_block[i])
-            abs_forecast_error.extend([abs_error])
-            ai_forecast_error.extend([ai_error])
-        table_data_block = [label_block, demand_block, ai_data_block, ai_forecast_error, abs_ai_cmape, your_data_block,
-                            abs_forecast_error, abs_your_cmape]
-        player.table_data = str(table_data_block)
-
-        return dict(
-            label_block=label_block,
-            ai_data_block=ai_data_block,
-            your_data_block=your_data_block,
-            actual_demand_block=demand_block,
-        )
-
-
-# each question on a separate page ---
-class BlockQ21(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q21', 'Q21a', 'time_w21']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        if player.participant.vars['prev'] == 20:
-            player.participant.vars['prev'] = 1
-        player.participant.vars['prev'] = 1
-        # save the ai data value
-        player.Q21b = C.ai_data[0]
-        player.Q21_cmape = player.participant.vars['cmape_error']
-      #  player.time_w21 = player._time_on_page
-
-
-
-class BlockQ22(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q22', 'Q22a', 'time_w22']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 2
-        # save the ai data value
-        player.Q22b = C.ai_data[1]
-        player.Q22_cmape = player.participant.vars['cmape_error']
-       # player.time_w22 = player._time_on_page
-
-
-class BlockQ23(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q23', 'Q23a', 'time_w23']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 3
-        # save the ai data value
-        player.Q23b = C.ai_data[2]
-        player.Q23_cmape = player.participant.vars['cmape_error']
-       # player.time_w23 = player._time_on_page
-
-
-class BlockQ24(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q24', 'Q24a', 'time_w24']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 4
-        # save the ai data value
-        player.Q24b = C.ai_data[3]
-        player.Q24_cmape = player.participant.vars['cmape_error']
-        #player.time_w24 = player._time_on_page
-
-
-class BlockQ25(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q25', 'Q25a', 'time_w25']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 5
-        # save the ai data value
-        player.Q25b = C.ai_data[4]
-        player.Q25_cmape = player.participant.vars['cmape_error']
-        #player.time_w25 = player._time_on_page
-
-
-
-class BlockQ26(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q26', 'Q26a', 'time_w26']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 6
-        # save the ai data value
-        player.Q26b = C.ai_data[5]
-        player.Q26_cmape = player.participant.vars['cmape_error']
-        #player.time_w26 = player._time_on_page
-
-
-
-class BlockQ27(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q27', 'Q27a', 'time_w27']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 7
-        # save the ai data value
-        player.Q27b = C.ai_data[6]
-        player.Q27_cmape = player.participant.vars['cmape_error']
-        #player.time_w27 = player._time_on_page
-
-
-
-class BlockQ28(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q28', 'Q28a', 'time_w28']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 8
-        # save the ai data value
-        player.Q28b = C.ai_data[7]
-        player.Q28_cmape = player.participant.vars['cmape_error']
-        #player.time_w28 = player._time_on_page
-
-
-
-class BlockQ29(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q29', 'Q29a', 'time_w29']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 9
-        # save the ai data value
-        player.Q29b = C.ai_data[8]
-        player.Q29_cmape = player.participant.vars['cmape_error']
-        #player.time_w29 = player._time_on_page
-
-
-
-class BlockQ30(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q30', 'Q30a', 'time_w30']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 10
-        # save the ai data value
-        player.Q30b = C.ai_data[9]
-        player.Q30_cmape = player.participant.vars['cmape_error']
-        #player.time_w30 = player._time_on_page
-
-
-class BlockQ31(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q31', 'Q31a', 'time_w31']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 11
-        # save the ai data value
-        player.Q31b = C.ai_data[10]
-        player.Q31_cmape = player.participant.vars['cmape_error']
-        #player.time_w31 = player._time_on_page
-
-
-class BlockQ32(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q32', 'Q32a', 'time_w32']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 12
-        # save the ai data value
-        player.Q32b = C.ai_data[11]
-        player.Q32_cmape = player.participant.vars['cmape_error']
-        #player.time_w32 = player._time_on_page
-
-
-class BlockQ33(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q33', 'Q33a', 'time_w33']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 13
-        # save the ai data value
-        player.Q33b = C.ai_data[12]
-        player.Q33_cmape = player.participant.vars['cmape_error']
-        #player.time_w33 = player._time_on_page
-
-
-class BlockQ34(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q34', 'Q34a', 'time_w34']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 14
-        # save the ai data value
-        player.Q34b = C.ai_data[13]
-        player.Q34_cmape = player.participant.vars['cmape_error']
-        #player.time_w34 = player._time_on_page
-
-
-class BlockQ35(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q35', 'Q35a', 'time_w35']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 15
-        # save the ai data value
-        player.Q35b = C.ai_data[14]
-        player.Q35_cmape = player.participant.vars['cmape_error']
-        #player.time_w35 = player._time_on_page
-
-
-class BlockQ36(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q36', 'Q36a', 'time_w36']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 16
-        # save the ai data value
-        player.Q36b = C.ai_data[15]
-        player.Q36_cmape = player.participant.vars['cmape_error']
-        #player.time_w36 = player._time_on_page
-
-
-class BlockQ37(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q37', 'Q37a', 'time_w37']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 17
-        # save the ai data value
-        player.Q37b = C.ai_data[16]
-        player.Q37_cmape = player.participant.vars['cmape_error']
-        #player.time_w37 = player._time_on_page
-
-
-class BlockQ38(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q38', 'Q38a', 'time_w38']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 18
-        # save the ai data value
-        player.Q38b = C.ai_data[17]
-        player.Q38_cmape = player.participant.vars['cmape_error']
-        # player.time_w38 = player._time_on_page
-
-
-class BlockQ39(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q39', 'Q39a', 'time_w39']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 19
-        # save the ai data value
-        player.Q39b = C.ai_data[18]
-        player.Q39_cmape = player.participant.vars['cmape_error']
-        # player.time_w39 = player._time_on_page
-
-
-class BlockQ40(BlockQs):
-    form_model = 'player'
-    form_fields = ['Q40', 'Q40a', 'time_w40']
-
-    @staticmethod
-    def before_next_page(player, timeout_happened=False):
-        # a variable to capture the previous page
-        player.participant.vars['prev'] = 20
-        # save the ai data value
-        player.Q40b = C.ai_data[19]
-        player.Q40_cmape = player.participant.vars['cmape_error']
-        #player.time_w40 = player._time_on_page
-
-
-# -------------------------------
-
-
-# ------ other pages -----
-class Block6(ConsentOk):
-    # survey page
-    template_name = "ai/Survey.html"
-
+class Survey(ConsentOk):
+    template_name = 'ai/Survey.html'
     form_model = 'player'
     form_fields = ['Q41', 'Q42', 'Q43', 'Q44', 'Q44_1', 'Q45']
 
-    @staticmethod
-    def is_displayed(player):
-        return player.consent
-
 
 class Instruction(ConsentOk):
+    template_name = 'ai/Instruction.html'
+
+    @staticmethod
+    def vars_for_template(player):
+        return dict(observation_table=make_observation_table())
+
+    @staticmethod
     def before_next_page(player, timeout_happened=False):
-        demand_block = C.past_demand_data_block.copy()
-        table_data_block = [[], demand_block, [], [], [], [],[], []]
-        player.table_data = str(table_data_block)
+        player.participant.vars['prev'] = C.OBSERVATION_PERIODS
+        player.table_data = str(get_table_rows(player, C.OBSERVATION_PERIODS))
 
 
-class Block7(ConsentOk):
-    # forecasting survey
-    template_name = "ai/Survey2.html"
+# -------------------------
+# Dynamically generated PAQ and forecast pages
+# -------------------------
 
+def make_paq_page(n):
+    class PAQPage(ConsentOk):
+        template_name = 'ai/PAQ.html'
+        form_model = 'player'
+        form_fields = [f'PAQ{n}', f'CL{n}', f'time_paq{n}']
+
+        @staticmethod
+        def vars_for_template(player):
+            after_period = C.PAQ_PERIODS[n - 1]
+            block_len = C.block_length[after_period - 1]
+            block_cond = C.block_condition[after_period - 1]
+            return dict(
+                paq_number=n,
+                after_period=after_period,
+                block_length=block_len,
+                block_condition=block_cond.replace('_', ' ').title(),
+                recent_rows=paq_prior_rows(n),
+            )
+
+    PAQPage.__name__ = f'PAQ{n}'
+    return PAQPage
+
+
+def make_forecast_page(period):
+    class ForecastPage(ConsentOk):
+        template_name = 'ai/Forecast.html'
+        form_model = 'player'
+        form_fields = [f'fa{period}', f'fmag{period}', f'time_w{period}']
+
+        @staticmethod
+        def error_message(player, values):
+            fa = values.get(f'fa{period}')
+            fmag = values.get(f'fmag{period}')
+            if fa is None:
+                return 'Please indicate whether you want to keep the system forecast.'
+            if fa == 0 and fmag is None:
+                return 'You selected No. Please provide your own forecast value.'
+
+        @staticmethod
+        def vars_for_template(player):
+            info = period_info(period)
+            prev = period - 1
+            prev_feedback = None
+
+            if period > C.OBSERVATION_PERIODS + 1:
+                previous_period = period - 1
+                actual_prev = C.actual_demand[previous_period - 1]
+                system_prev = C.system_forecast[previous_period - 1]
+                your_prev = final_forecast_for_period(player, previous_period)
+
+                if your_prev is not None:
+                    previous_rows = get_table_rows(player, previous_period)
+                    prev_feedback = [
+                        previous_period,
+                        abs(actual_prev - system_prev),
+                        abs(actual_prev - your_prev),
+                        previous_rows[-1][7],
+                    ]
+
+            return dict(
+                qn=period,
+                qn_n=period,
+                period=period,
+                week_data=info['system'],
+                label=C.label_dict[f'fa{period}'],
+                start=prev_feedback is not None,
+                prev_error=prev_feedback,
+                table_data=list(reversed(get_table_rows(player, prev))),
+            )
+
+        @staticmethod
+        def js_vars(player):
+            labels, actual, system, your = chart_data(player, period - 1)
+            return dict(
+                label_block=labels,
+                actual_demand_block=actual,
+                ai_data_block=system,
+                your_data_block=your,
+            )
+
+        @staticmethod
+        def before_next_page(player, timeout_happened=False):
+            save_period_outcomes(player, period)
+
+    ForecastPage.__name__ = f'ForecastP{period}'
+    return ForecastPage
+
+
+PAQ1 = make_paq_page(1)
+PAQ2 = make_paq_page(2)
+PAQ3 = make_paq_page(3)
+PAQ4 = make_paq_page(4)
+PAQ5 = make_paq_page(5)
+PAQ6 = make_paq_page(6)
+PAQ7 = make_paq_page(7)
+PAQ8 = make_paq_page(8)
+PAQ9 = make_paq_page(9)
+PAQ10 = make_paq_page(10)
+
+FORECAST_PAGES = {period: make_forecast_page(period) for period in range(6, 36)}
+
+
+# -------------------------
+# Remaining original app pages
+# -------------------------
+
+class Graph(ConsentOk):
+    template_name = 'ai/Graph.html'
+
+    @staticmethod
+    def vars_for_template(player):
+        return dict(table_data=get_table_rows(player, C.NUM_PERIODS))
+
+    @staticmethod
+    def js_vars(player):
+        labels, actual, system, your = chart_data(player, C.NUM_PERIODS)
+        return dict(
+            label_block=labels,
+            actual_demand_block=actual,
+            ai_data_block=system,
+            your_data_block=your,
+        )
+
+
+class Survey2(ConsentOk):
+    template_name = 'ai/Survey2.html'
     form_model = 'player'
-    form_fields = ['Q46', 'Q47', 'Q48']
+    form_fields = ['Q46', 'Q47', 'Q48', 'Q14']
 
 
-class Block8(ConsentOk):
-    # Likelyhood - behavioral traits
-    template_name = "ai/Likely.html"
-
+class Likely(ConsentOk):
+    template_name = 'ai/Likely.html'
     form_model = 'player'
-    form_fields = ['Q13f1', 'Q13f2', 'Q13f3', 'Q13f4', 'Q13f5', 'Q13f6', 'Q14', 'Q15']
-
-class Block50(ConsentOk):
-    # Likelyhood - behavioral traits
-    template_name = "ai/Culture.html"
-
-    form_model = 'player'
-    form_fields = ['PDI', 'IDV', 'MAS', 'UAI', 'LTO', 'IVR', 'MON']
+    form_fields = ['Q13f1', 'Q13f2', 'Q13f3', 'Q13f4', 'Q13f5', 'Q13f6', 'Q15']
 
 
 
 class CAT(ConsentOk):
+    template_name = 'ai/CAT.html'
     form_model = 'player'
     form_fields = ['cat1', 'cat2', 'cat3', 'cat4', 'cat1_time', 'cat2_time', 'cat3_time', 'cat4_time']
 
 
 class NT(ConsentOk):
+    template_name = 'ai/NT.html'
     form_model = 'player'
     form_fields = ['nt1', 'nt2', 'nt3', 'nt1_time', 'nt2_time', 'nt3_time']
 
 
-class Block9(Page):
-    template_name = "ai/Thanks.html"
+class Thanks(ConsentOk):
+    template_name = 'ai/Thanks.html'
+
+    @staticmethod
+    def before_next_page(player, timeout_happened=False):
+        if not player.unique_code:
+            player.generate_unique_code()
 
     @staticmethod
     def vars_for_template(player):
         if player.field_maybe_none('unique_code') is None:
             player.generate_unique_code()
-        return dict(unique_code=player.unique_code)
-# ----end other pages ---------
+        return dict(unique_code=player.field_maybe_none('unique_code'))
 
-page_sequence = [Consent,Name, Block6, Instruction, BlockQ21, BlockQ22, BlockQ23, BlockQ24, BlockQ25, BlockQ26, BlockQ27,
-                 BlockQ28, BlockQ29, BlockQ30, BlockQ31, BlockQ32, BlockQ33, BlockQ34, BlockQ35, BlockQ36, BlockQ37,
-                 BlockQ38, BlockQ39, BlockQ40, Graph, Block7, Block8, CAT, NT, Block50, Block9]
+
+# -------------------------
+# Page sequence
+# -------------------------
+
+page_sequence = [Consent, Name, Survey, Instruction, PAQ1]
+page_sequence += [FORECAST_PAGES[6], FORECAST_PAGES[7], PAQ2]
+page_sequence += [FORECAST_PAGES[8], FORECAST_PAGES[9], FORECAST_PAGES[10], PAQ3]
+page_sequence += [FORECAST_PAGES[11], FORECAST_PAGES[12], FORECAST_PAGES[13], FORECAST_PAGES[14], FORECAST_PAGES[15], PAQ4]
+page_sequence += [FORECAST_PAGES[16], FORECAST_PAGES[17], FORECAST_PAGES[18], FORECAST_PAGES[19], FORECAST_PAGES[20], PAQ5]
+page_sequence += [FORECAST_PAGES[21], FORECAST_PAGES[22], PAQ6]
+page_sequence += [FORECAST_PAGES[23], FORECAST_PAGES[24], FORECAST_PAGES[25], PAQ7]
+page_sequence += [FORECAST_PAGES[26], FORECAST_PAGES[27], FORECAST_PAGES[28], PAQ8]
+page_sequence += [FORECAST_PAGES[29], FORECAST_PAGES[30], PAQ9]
+page_sequence += [FORECAST_PAGES[31], FORECAST_PAGES[32], FORECAST_PAGES[33], FORECAST_PAGES[34], FORECAST_PAGES[35], PAQ10]
+page_sequence += [Graph, Survey2, Likely, CAT, NT, Thanks]
