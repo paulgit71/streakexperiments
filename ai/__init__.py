@@ -28,12 +28,12 @@ ACTUAL_DEMAND = [
 
 SYSTEM_FORECAST = [
     1368, 828, 1740, 1337, 1787,
-    809, 1293, 1822, 1045, 1491,
-    1976, 823, 1101, 1685, 762,
-    1249, 2030, 862, 1514, 1359,
-    1688, 799, 1501, 1945, 1158,
-    1522, 915, 1199, 1595, 737,
-    1480, 1884, 967, 1543, 1235
+    845, 1217, 1893, 1080, 1460,
+    1986, 813, 1101, 1685, 749,
+    1262, 1870, 933, 1550, 1249,
+    1622, 760, 1451, 2047, 1135,
+    1460, 965, 1117, 1595, 712,
+    1528, 1914, 957, 1543, 1215
 ]
 
 STAGE = [
@@ -293,6 +293,18 @@ class Player(BasePlayer):
         ),
     )
 
+    ACQ1 = models.StringField(
+        widget=widgets.RadioSelect,
+        label='Please choose Definitely yes for this question. Do you answer questions to the best of your abilities?',
+        choices=(
+            (1, 'Definitely not'),
+            (2, 'Probably not'),
+            (3, 'Might or might not'),
+            (4, 'Probably yes'),
+            (5, 'Definitely yes'),
+        ),
+    )
+
     # likelihood questions - financial risk preference
     Q13f1 = models.IntegerField(label='Betting 10% of your annual income at the horse races.', choices=((1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')), widget=widgets.RadioSelectHorizontal)
     Q13f2 = models.IntegerField(label='Investing 10% of your annual income in a moderate growth mutual fund.', choices=((1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')), widget=widgets.RadioSelectHorizontal)
@@ -301,14 +313,6 @@ class Player(BasePlayer):
     Q13f5 = models.IntegerField(label='Betting 10% of your annual income on the outcome of a sporting event.', choices=((1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')), widget=widgets.RadioSelectHorizontal)
     Q13f6 = models.IntegerField(label='Investing 10% of your annual income in a new business venture.', choices=((1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')), widget=widgets.RadioSelectHorizontal)
 
-    # Cultural Questions
-    PDI = models.IntegerField(label='Please think of an ideal job, disregarding your present job, if you have one. In choosing an ideal job, how important would it be to have a boss (direct supervisor) you can respect?', choices=((1, 'Very unimportant'), (2, 'Unimportant'), (3, 'Neither Unimportant nor Important'), (4, 'Important'), (5, 'Very important')), widget=widgets.RadioSelectHorizontal)
-    IDV = models.IntegerField(label='Please think of an ideal job, disregarding your present job, if you have one. In choosing an ideal job, how important would it be to have sufficient time for your personal or home life?', choices=((1, 'Very unimportant'), (2, 'Unimportant'), (3, 'Neither Unimportant nor Important'), (4, 'Important'), (5, 'Very important')), widget=widgets.RadioSelectHorizontal)
-    MAS = models.IntegerField(label='Please think of an ideal job, disregarding your present job, if you have one. In choosing an ideal job, how important would it be to get recognition for good performance?', choices=((1, 'Very unimportant'), (2, 'Unimportant'), (3, 'Neither Unimportant nor Important'), (4, 'Important'), (5, 'Very important')), widget=widgets.RadioSelectHorizontal)
-    UAI = models.IntegerField(label='How often do you feel nervous or tense?', choices=((1, 'Never'), (2, 'Rarely'), (3, 'Sometimes'), (4, 'Often'), (5, 'Always')), widget=widgets.RadioSelectHorizontal)
-    LTO = models.IntegerField(label='To what extent do you agree with the following statement: We should honor our heroes of the past.', choices=((1, 'Strongly Disagree'), (2, 'Disagree'), (3, 'Neither Agree nor Disagree'), (4, 'Agree'), (5, 'Strongly Agree')), widget=widgets.RadioSelectHorizontal)
-    IVR = models.IntegerField(label='In your private life, how important is keeping time free for fun?', choices=((1, 'Very unimportant'), (2, 'Unimportant'), (3, 'Neither Unimportant nor Important'), (4, 'Important'), (5, 'Very important')), widget=widgets.RadioSelectHorizontal)
-    MON = models.IntegerField(label='How proud are you to be a citizen of your country?', choices=((1, 'Not at all proud'), (2, 'Slightly proud'), (3, 'Moderately proud'), (4, 'Proud'), (5, 'Very Proud')), widget=widgets.RadioSelectHorizontal)
 
     Q14 = models.IntegerField(label='How many forecasting courses have you taken in college?', choices=((0, 'None'), (1, '1'), (2, '2 or more')), widget=widgets.RadioSelect)
     Q15 = models.IntegerField(label='How will you rate your analytical ability?', min=0, max=10, blank=True, null=True)
@@ -502,26 +506,38 @@ def make_observation_table():
     return rows
 
 
-def paq_prior_rows(paq_number):
+def paq_prior_rows(player, paq_number):
     after_period = C.PAQ_PERIODS[paq_number - 1]
+
     if paq_number == 1:
         start_period = 1
     else:
         start_period = C.PAQ_PERIODS[paq_number - 2] + 1
 
     rows = []
+
     for period in range(start_period, after_period + 1):
         info = period_info(period)
+
+        # PAQ1 is after the observation stage, so participants have not made forecasts yet.
+        # Therefore, PAQ1 should not display participant APE.
+        if paq_number == 1 or period <= C.OBSERVATION_PERIODS:
+            participant_ape = ''
+        else:
+            participant_ape = player.field_maybe_none(f'participant_ape{period}')
+            if participant_ape is None:
+                participant_ape = ''
+
         rows.append([
             period,
             info['actual'],
             info['system'],
             info['system_error'],
             info['system_ape'],
-            'Accurate' if info['accuracy_flag'] == 'A' else 'Inaccurate',
+            participant_ape,
         ])
-    return rows
 
+    return rows
 
 # -------------------------
 # Page classes
@@ -587,17 +603,18 @@ def make_paq_page(n):
             after_period = C.PAQ_PERIODS[n - 1]
             block_len = C.block_length[after_period - 1]
             block_cond = C.block_condition[after_period - 1]
+
             return dict(
                 paq_number=n,
                 after_period=after_period,
                 block_length=block_len,
                 block_condition=block_cond.replace('_', ' ').title(),
-                recent_rows=paq_prior_rows(n),
+                recent_rows=paq_prior_rows(player, n),
+                show_participant_ape=(n > 1),
             )
 
     PAQPage.__name__ = f'PAQ{n}'
     return PAQPage
-
 
 def make_forecast_page(period):
     class ForecastPage(ConsentOk):
@@ -703,7 +720,7 @@ class Graph(ConsentOk):
 class Survey2(ConsentOk):
     template_name = 'ai/Survey2.html'
     form_model = 'player'
-    form_fields = ['Q46', 'Q47', 'Q48', 'Q14']
+    form_fields = ['Q46', 'Q47', 'Q48', 'ACQ1', 'Q14']
 
 
 class Likely(ConsentOk):
@@ -730,7 +747,7 @@ class Thanks(ConsentOk):
 
     @staticmethod
     def before_next_page(player, timeout_happened=False):
-        if not player.unique_code:
+        if player.field_maybe_none('unique_code') is None:
             player.generate_unique_code()
 
     @staticmethod

@@ -22,18 +22,31 @@ Forecast Accuracy Perception
                     <th>System Forecast</th>
                     <th>System Error</th>
                     <th>System APE</th>
+                    {{ if show_participant_ape }}
+                        <th>Your APE</th>
+                    {{ endif }}
                 </tr>
             </thead>
             <tbody>
-                {% for row in recent_rows %}
+                {{ for row in recent_rows }}
                 <tr>
                     <td>{{ row.0 }}</td>
                     <td>{{ row.1 }}</td>
                     <td>{{ row.2 }}</td>
                     <td>{{ row.3 }}</td>
                     <td>{{ row.4 }}%</td>
+
+                    {{ if show_participant_ape }}
+                        <td>
+                            {{ if row.5 == '' }}
+                                -
+                            {{ else }}
+                                {{ row.5 }}%
+                            {{ endif }}
+                        </td>
+                    {{ endif }}
                 </tr>
-                {% endfor %}
+                {{ endfor }}
             </tbody>
         </table>
     </div>
@@ -41,41 +54,66 @@ Forecast Accuracy Perception
 
 <div class="mb-4">
     <label for="id_PAQ{{ paq_number }}" class="form-label">
-        How likely do you think the system's forecasts are accurate in the next periods? (<strong> 0 means not all likely and 100 means highly likely </strong>)
+        How likely do you think the system's forecasts are accurate in the next periods?
+        (<strong>1 means not at all likely and 5 means highly likely</strong>)
     </label>
     <div class="row align-items-center">
-        <div class="col-2 text-end">0</div>
+        <div class="col-2 text-end">1</div>
         <div class="col-8">
-            <input type="range" class="form-range" id="id_PAQ{{ paq_number }}" name="PAQ{{ paq_number }}" min="0" max="100" value="50" step="1" oninput="paqValue.innerText = this.value">
+            <input
+                type="range"
+                class="form-range"
+                id="id_PAQ{{ paq_number }}"
+                name="PAQ{{ paq_number }}"
+                min="1"
+                max="5"
+                value="3"
+                step="1"
+                oninput="paqValue.innerText = this.value"
+            >
         </div>
-        <div class="col-2">100</div>
+        <div class="col-2">5</div>
     </div>
-    <p class="text-center">Selected value: <strong><span id="paqValue">50</span></strong></p>
+    <p class="text-center">Selected value: <strong><span id="paqValue">3</span></strong></p>
 </div>
 
 <div class="mb-4">
     <label for="id_CL{{ paq_number }}" class="form-label">
-        How confident are you that the system's forecast will be accurate in the next periods? (<strong> 0 means not confident at all and 100 means highly confident </strong>)
+        How confident are you that the system's forecast will be accurate in the next periods?
+        (<strong>1 means not confident at all and 5 means highly confident</strong>)
     </label>
     <div class="row align-items-center">
-        <div class="col-2 text-end">0</div>
+        <div class="col-2 text-end">1</div>
         <div class="col-8">
-            <input type="range" class="form-range" id="id_CL{{ paq_number }}" name="CL{{ paq_number }}" min="0" max="100" value="50" step="1" oninput="clValue.innerText = this.value">
+            <input
+                type="range"
+                class="form-range"
+                id="id_CL{{ paq_number }}"
+                name="CL{{ paq_number }}"
+                min="1"
+                max="5"
+                value="3"
+                step="1"
+                oninput="clValue.innerText = this.value"
+            >
         </div>
-        <div class="col-2">100</div>
+        <div class="col-2">5</div>
     </div>
-    <p class="text-center">Selected value: <strong><span id="clValue">50</span></strong></p>
+    <p class="text-center">Selected value: <strong><span id="clValue">3</span></strong></p>
 </div>
 
 <script>
     let startTime = Date.now();
+
     document.querySelector('form').addEventListener('submit', function () {
         let endTime = Date.now();
         let secondsSpent = (endTime - startTime) / 1000;
+
         let hiddenField = document.createElement('input');
         hiddenField.type = 'hidden';
         hiddenField.name = 'time_paq{{ paq_number }}';
         hiddenField.value = secondsSpent.toFixed(2);
+
         this.appendChild(hiddenField);
     });
 </script>
