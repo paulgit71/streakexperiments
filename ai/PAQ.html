@@ -11,8 +11,25 @@ Forecast Accuracy Perception
     Please answer the following questions based on the forecast system's performance so far.
 </p>
 
+<p>
+    The <strong>System APE</strong> is the absolute forecast error of the system in percentages relative to actual demand.
+    <strong>Your APE</strong> is your forecast error expressed in percentages relative to actual demand.
+    For instance, APE = 3% implies that the forecast is off the actual demand by 3 percentage points.
+</p>
+
+<p>
+    <strong>“Your APE” is different if the “System Forecast” has been adjusted for the period.
+    “Your APE” remains the same as “System APE” if there is no adjustment to the “System Forecast”.</strong>
+</p>
+
+{{ if paq_note }}
+<p class="text-danger">
+    <strong>{{ paq_note }}</strong>
+</p>
+{{ endif }}
+
 <div class="card mb-3">
-    <div class="card-header"><strong>Recent system performance</strong></div>
+    <div class="card-header"><strong>Recent forecast performance</strong></div>
     <div class="card-body">
         <table class="table table-sm table-bordered text-center">
             <thead>

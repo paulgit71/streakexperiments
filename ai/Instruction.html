@@ -7,13 +7,16 @@ Please Read The Following Instructions Carefully
 {{ block content }}
 
 <p>
-    In this study, you will act as a demand planner. A <strong>statistical forecast system</strong> provides a demand forecast for each period.
-    From Period 6 onward, you will decide whether to accept the system forecast by choosing <strong>Yes</strong> or reject it by choosing <strong>No</strong>.
-    If you choose <strong>No</strong>, you will be required to provide your own forecast.
+    In this study, you will act as a demand planner. A <strong>statistical forecast system</strong> provides demand forecasts for a product across several periods.
 </p>
 
 <p>
-    Before making decisions in period 6, carefully observe the system's performance for Periods 1–5. You are not required to make any decisions yet.
+    You will first observe forecast-performance information for several blocks of periods. During these observation blocks, you are not required to make any forecast decisions.
+    Your first forecast decision will begin at <strong>Period 26</strong>.
+</p>
+
+<p>
+    Before moving through the remaining observation blocks, carefully observe the system's performance for <strong>Periods 1–5</strong>.
 </p>
 
 <table class="table table-sm table-bordered text-center">
@@ -27,7 +30,7 @@ Please Read The Following Instructions Carefully
         </tr>
     </thead>
     <tbody>
-        {% for row in observation_table %}
+        {{ for row in observation_table }}
         <tr>
             <td>{{ row.0 }}</td>
             <td>{{ row.1 }}</td>
@@ -35,13 +38,18 @@ Please Read The Following Instructions Carefully
             <td>{{ row.3 }}</td>
             <td>{{ row.4 }}%</td>
         </tr>
-        {% endfor %}
+        {{ endfor }}
     </tbody>
 </table>
 
 <p>
-    A forecast is considered <strong>Accurate</strong> when its <strong> Absolute Percentage Error (APE) is low enough </strong>.
-    After the observation stage and after each later block of periods, you will answer two slider questions about your perceived system accuracy and confidence.
+    <strong>System APE</strong> means the absolute percentage error of the statistical system forecast relative to actual demand.
+    After each block, you will answer two slider questions about your perceived forecast-system accuracy and confidence.
+</p>
+
+<p>
+    From <strong>Period 26 onward</strong>, you will decide whether to accept the system forecast by choosing <strong>Yes</strong> or reject it by choosing <strong>No</strong>.
+    If you choose <strong>No</strong>, you will be required to provide your own forecast.
 </p>
 
 {{ next_button }}

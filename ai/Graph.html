@@ -1,7 +1,7 @@
 {{ extends "global/Page.html" }}
 
 {{ block title }}
-Actual Demand vs Traditional System Forecast vs Your Forecast
+Actual Demand vs Statistical System Forecast vs Your Forecast
 {{ endblock }}
 {{ block content }}
     <div class="row">
@@ -25,12 +25,12 @@ Actual Demand vs Traditional System Forecast vs Your Forecast
                           filteredLabels.push(label);
 
                           // Include AI and Your forecast data only from week 21 onward
-                          if (index >= 20) {  // Week 21 and beyond
+                          if (index >= 25) {  // Period 26 and beyond
                             filteredAIData.push(aiData[index] !== 0 ? aiData[index] : null);
                             filteredYourData.push(yourData[index] !== 0 ? yourData[index] : null);
                           } else {
-                            filteredAIData.push(null);  // Null for weeks 1-20
-                            filteredYourData.push(null);  // Null for weeks 1-20
+                            filteredAIData.push(null);  // Null for periods 1-25
+                            filteredYourData.push(null);  // Null for periods 1-25
                           }
                         });
 
@@ -61,7 +61,7 @@ Actual Demand vs Traditional System Forecast vs Your Forecast
                               tension: 0.0
                             },
                             {
-                              label: "Traditional Tool forecast",
+                              label: "Statistical System Forecast",
                               data: filteredData.filteredAIData,
                               backgroundColor: [
                                 'rgba(105, 0, 132, .2)',
@@ -126,15 +126,15 @@ Actual Demand vs Traditional System Forecast vs Your Forecast
               <thead>
                 <tr>
                     <th colspan="8"  class="text-center">
-                    Forecast performance for Traditional System and Your Forecast
+                    Forecast performance for Statistical System and Your Forecast
                     </th>
                 </tr>
                 <tr>
                   <th scope="col">Week</th>
                   <th scope="col">Actual Demand</th>
-                  <th scope="col">Traditional System Forecast</th>
-                  <th scope="col">Traditional System Forecast Error</th>
-                  <th scope="col">CMAPE for Traditional Tool</th>
+                  <th scope="col">Statistical System Forecast</th>
+                  <th scope="col">Statistical System Forecast Error</th>
+                  <th scope="col">CMAPE for Statistical System</th>
                   <th scope="col">Your Forecast</th>
                   <th scope="col">Your Forecast Error</th>
                   <th scope="col">CMAPE for Your Forecast</th>
