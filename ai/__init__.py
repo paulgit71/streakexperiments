@@ -5,8 +5,8 @@ import string
 
 doc = """
 Final hot-hand / gambler's fallacy experiment with statistical system-generated forecasts.
-Participants observe forecast-performance blocks for periods 1-25.
-Participants make forecast accept/reject decisions only for periods 26-35.
+Participants observe forecast-performance blocks for periods 1-30.
+Participants make forecast accept/reject decisions only for periods 31-40.
 Perceived Accuracy Question (PAQ) and Confidence Level (CL) are asked after each block.
 """
 
@@ -15,56 +15,46 @@ Perceived Accuracy Question (PAQ) and Confidence Level (CL) are asked after each
 # Module-level constants.
 # ---------------------------------------------------------------------
 
-ACTUAL_DEMAND = [1420, 915, 1688, 1215, 1876, 784, 1326, 1762, 1018, 1547, 1904, 846, 1135, 1642, 731, 1298, 1815, 972, 1486, 1193, 1711, 808, 1364, 1920, 1057, 1579, 889, 1238, 1746, 764, 1452, 1831, 997, 1605, 1186]
+ACTUAL_DEMAND = [1420, 915, 1688, 1215, 1876, 784, 1326, 1762, 1018, 1547, 1904, 846, 1135, 1642, 731, 1298, 1815, 972, 1486, 1193, 1711, 808, 1364, 1920, 1057, 1579, 889, 1238, 1746, 764, 1452, 1831, 997, 1605, 1186, 1220, 1050, 1512, 970, 1342]
 
-SYSTEM_FORECAST = [1368, 880, 1755, 1267, 1787, 845, 1217, 1893, 1080, 1460, 1986, 813, 1101, 1685, 749, 1262, 1870, 933, 1550, 1249, 1622, 760, 1451, 2047, 1135, 1460, 965, 1117, 1595, 712, 1528, 1914, 957, 1543, 1215]
+SYSTEM_FORECAST = [1368, 880, 1755, 1267, 1787, 845, 1217, 1893, 1080, 1460, 1986, 813, 1101, 1685, 749, 1262, 1870, 933, 1550, 1219, 1622, 760, 1451, 2047, 1135, 1460, 965, 1117, 1595, 712, 1528, 1914, 957, 1543, 1215, 1262, 1092, 1577, 1019, 1424]
 
-SYSTEM_APE = [3.66, 3.83, 3.97, 4.28, 4.74, 7.78, 8.22, 7.43, 6.09, 5.62, 4.31, 3.9, 3.0, 2.62, 2.46, 2.77, 3.03, 4.01, 4.31, 4.69, 5.2, 5.94, 6.38, 6.61, 7.38, 7.54, 8.55, 9.77, 8.65, 6.81, 5.23, 4.53, 4.01, 3.86, 2.45]
+# Displayed System APE values. Periods 36-40 follow the requested APE targets.
+SYSTEM_APE = [3.66, 3.83, 3.97, 4.28, 4.74, 7.78, 8.22, 7.43, 6.09, 5.62, 4.31, 3.9, 3.0, 2.62, 2.46, 2.77, 3.03, 4.01, 4.31, 2.49, 5.2, 5.94, 6.38, 6.61, 7.38, 7.54, 8.55, 9.77, 8.65, 6.81, 5.23, 4.53, 4.01, 3.86, 2.45, 3.43, 3.99, 4.32, 5.01, 6.12]
 
 # Display-only "Your APE" values used on pre-decision PAQ pages.
 # None means the column should be blank or hidden depending on the PAQ page.
-DISPLAY_YOUR_APE = {1: None, 2: None, 3: None, 4: None, 5: None, 6: 10.6, 7: 11.4, 8: 7.43, 9: 6.09, 10: 5.62, 11: 6.2, 12: 4.8, 13: 3.4, 14: 2.1, 15: 1.4, 16: None, 17: None, 18: None, 19: 2.2, 20: 2.8, 21: 7.7, 22: 8.5, 23: 9.1, 24: 9.8, 25: 10.9, 26: None, 27: None, 28: None, 29: None, 30: None, 31: None, 32: None, 33: None, 34: None, 35: None}
+DISPLAY_YOUR_APE = {1: None, 2: None, 3: None, 4: None, 5: None, 6: 10.69, 7: 7.91, 8: 7.43, 9: 8.71, 10: 5.62, 11: 6.22, 12: 7.33, 13: 3.47, 14: 5.53, 15: 1.42, 16: None, 17: None, 18: None, 19: 2.21, 20: 6.62, 21: 7.76, 22: 4.55, 23: 8.13, 24: 4.47, 25: 7.38, 26: 7.54, 27: 4.27, 28: 10.21, 29: None, 30: None, 31: None, 32: None, 33: None, 34: None, 35: None, 36: None, 37: None, 38: None, 39: None, 40: None}
 
-# Periods 1-25 are observation/feedback periods. Periods 26-35 are decision periods.
-STAGE = ['observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'decision', 'decision', 'decision', 'decision', 'decision', 'decision', 'decision', 'decision', 'decision', 'decision']
+# Periods 1-30 are observation/feedback periods. Periods 31-40 are decision periods.
+STAGE = ['observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'observation', 'decision', 'decision', 'decision', 'decision', 'decision', 'decision', 'decision', 'decision', 'decision', 'decision']
 
-CONDITION = ['observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'decision_streak', 'decision_streak', 'decision_streak', 'decision_mixed_control', 'decision_mixed_control', 'decision_streak', 'decision_streak', 'decision_streak', 'decision_streak', 'decision_streak']
+CONDITION = ['observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'observation_feedback', 'decision_streak', 'decision_streak', 'decision_streak', 'decision_streak', 'decision_streak', 'decision_streak', 'decision_streak', 'decision_mixed_control', 'decision_mixed_control', 'decision_mixed_control']
 
-BLOCK_ID = [1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 9, 9, 10, 10, 10, 10, 10]
+BLOCK_ID = [1, 1, 1, 1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 7, 7, 7, 8, 8, 8, 9, 9, 10, 10, 10, 10, 10, 11, 11, 12, 12, 12]
 
-BLOCK_LENGTH = [5, 5, 5, 5, 5, 2, 2, 3, 3, 3, 5, 5, 5, 5, 5, 3, 3, 3, 2, 2, 5, 5, 5, 5, 5, 3, 3, 3, 2, 2, 5, 5, 5, 5, 5]
+BLOCK_LENGTH = [5, 5, 5, 5, 5, 2, 2, 3, 3, 3, 5, 5, 5, 5, 5, 3, 3, 3, 2, 2, 5, 5, 5, 5, 5, 3, 3, 3, 2, 2, 5, 5, 5, 5, 5, 2, 2, 3, 3, 3]
 
 BLOCK_CONDITION = CONDITION.copy()
 
-ACCURACY_FLAG = ['A', 'A', 'A', 'A', 'A', 'I', 'I', 'I', 'I', 'I', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'A', 'A', 'A', 'A']
+# A = within 5% of actual demand; I = outside 5%.
+ACCURACY_FLAG = ['A', 'A', 'A', 'A', 'A', 'I', 'I', 'I', 'I', 'I', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'I', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'I', 'I']
 
 # PAQ timing by block:
 # PAQ1 after 1-5; PAQ2 after 6-7; PAQ3 after 8-10; PAQ4 after 11-15;
 # PAQ5 after 16-18; PAQ6 after 19-20; PAQ7 after 21-25;
-# PAQ8 after 26-28; PAQ9 after 29-30; PAQ10 after 31-35.
-PAQ_PERIODS = [5, 7, 10, 15, 18, 20, 25, 28, 30, 35]
+# PAQ8 after 26-28; PAQ9 after 29-30; PAQ10 after 31-35;
+# PAQ11 after 36-37; PAQ12 after 38-40.
+PAQ_PERIODS = [5, 7, 10, 15, 18, 20, 25, 28, 30, 35, 37, 40]
 
 # PAQ pages where the "Your APE" column should be displayed.
-SHOW_YOUR_APE_ON_PAQ = {
-    1: False,
-    2: True,
-    3: True,
-    4: True,
-    5: False,
-    6: True,
-    7: True,
-    8: True,
-    9: True,
-    10: True,
-}
+SHOW_YOUR_APE_ON_PAQ = {1: False, 2: True, 3: True, 4: True, 5: False, 6: True, 7: True, 8: True, 9: False, 10: True, 11: True, 12: True}
 
-PAQ_NOTES = {
-    5: "Only the statistical system forecast is provided for this block.",
-}
+PAQ_NOTES = {5: '.', 9: '.'}
 
 LABEL_DICT = {
     f'fa{i}': f'Period {i} system forecast value: {SYSTEM_FORECAST[i - 1]} units. Will you keep it?'
-    for i in range(1, 36)
+    for i in range(1, 41)
 }
 
 
@@ -73,10 +63,10 @@ class C(BaseConstants):
     PLAYERS_PER_GROUP = None
     NUM_ROUNDS = 1
 
-    NUM_PERIODS = 35
+    NUM_PERIODS = 40
     INITIAL_OBSERVATION_PERIODS = 5
-    OBSERVATION_PERIODS = 25
-    DECISION_PERIODS = list(range(26, 36))
+    OBSERVATION_PERIODS = 30
+    DECISION_PERIODS = list(range(31, 41))
     PAQ_PERIODS = PAQ_PERIODS
 
     actual_demand = ACTUAL_DEMAND
@@ -129,7 +119,7 @@ def make_accept_field():
 
 class Player(BasePlayer):
     # Actual demand and system forecast values stored by period.
-    for i in range(1, 36):
+    for i in range(1, 41):
         locals()[f'ad{i}'] = models.IntegerField(blank=True, null=True)
         locals()[f'sf{i}'] = models.IntegerField(blank=True, null=True)
 
@@ -148,7 +138,7 @@ class Player(BasePlayer):
         locals()[f'participant_ape{i}'] = models.FloatField(blank=True, null=True)
 
     # Perceived Accuracy Question and Confidence Level after observation and each streak block.
-    for i in range(1, 11):
+    for i in range(1, 13):
         locals()[f'PAQ{i}'] = models.IntegerField(
             label='Based on the forecast system’s performance so far, how likely do you think the statistical forecast system is to be accurate in the next periods?',
             min=0,
@@ -316,13 +306,13 @@ class Player(BasePlayer):
 
 def creating_session(subsession):
     for p in subsession.get_players():
-        for i in range(1, 36):
+        for i in range(1, 41):
             actual = C.actual_demand[i - 1]
             system = C.system_forecast[i - 1]
             setattr(p, f'ad{i}', actual)
             setattr(p, f'sf{i}', system)
             setattr(p, f'system_error{i}', abs(actual - system))
-            setattr(p, f'system_ape{i}', round(abs(actual - system) / actual * 100, 2))
+            setattr(p, f'system_ape{i}', C.system_ape[i - 1])
         p.participant.vars['prev'] = C.INITIAL_OBSERVATION_PERIODS
         p.table_data = str(get_table_rows(p, C.INITIAL_OBSERVATION_PERIODS))
 
@@ -346,12 +336,12 @@ def period_info(period):
         block_condition=C.block_condition[idx],
         accuracy_flag=C.accuracy_flag[idx],
         system_error=abs(actual - system),
-        system_ape=round(abs(actual - system) / actual * 100, 2),
+        system_ape=C.system_ape[idx],
     )
 
 
 def final_forecast_for_period(player, period):
-    if period < 26:
+    if period < 31:
         return None
 
     fa = player.field_maybe_none(f'fa{period}')
@@ -390,10 +380,10 @@ def get_table_rows(player, upto_period=None):
         actual = C.actual_demand[period - 1]
         system = C.system_forecast[period - 1]
         system_error = abs(actual - system)
-        system_ape = round(system_error / actual * 100, 2)
+        system_ape = C.system_ape[period - 1]
         system_apes.append(system_ape)
 
-        if period < 26:
+        if period < 31:
             your_forecast = ''
             your_error = ''
             your_cmape = ''
@@ -432,7 +422,7 @@ def chart_data(player, upto_period=None):
     your = []
 
     for period in range(1, upto_period + 1):
-        if period < 26:
+        if period < 31:
             your.append(None)
         else:
             your.append(final_forecast_for_period(player, period))
@@ -486,7 +476,7 @@ def paq_prior_rows(player, paq_number):
 
         participant_ape = ''
         if C.show_your_ape_on_paq.get(paq_number, False):
-            if period < 26:
+            if period < 31:
                 participant_ape = C.display_your_ape.get(period, '')
                 if participant_ape is None:
                     participant_ape = ''
@@ -614,7 +604,7 @@ def make_forecast_page(period):
             prev = period - 1
             prev_feedback = None
 
-            if period > 26:
+            if period > 31:
                 previous_period = period - 1
                 actual_prev = C.actual_demand[previous_period - 1]
                 system_prev = C.system_forecast[previous_period - 1]
@@ -668,8 +658,10 @@ PAQ7 = make_paq_page(7)
 PAQ8 = make_paq_page(8)
 PAQ9 = make_paq_page(9)
 PAQ10 = make_paq_page(10)
+PAQ11 = make_paq_page(11)
+PAQ12 = make_paq_page(12)
 
-FORECAST_PAGES = {period: make_forecast_page(period) for period in range(26, 36)}
+FORECAST_PAGES = {period: make_forecast_page(period) for period in range(31, 41)}
 
 # -------------------------
 # Remaining original app pages
@@ -738,8 +730,8 @@ class Thanks(ConsentOk):
 # Page sequence
 # -------------------------
 
-page_sequence = [Consent, Name, Survey, Instruction, PAQ1, PAQ2, PAQ3, PAQ4, PAQ5, PAQ6, PAQ7]
-page_sequence += [FORECAST_PAGES[26], FORECAST_PAGES[27], FORECAST_PAGES[28], PAQ8]
-page_sequence += [FORECAST_PAGES[29], FORECAST_PAGES[30], PAQ9]
+page_sequence = [Consent, Name, Survey, Instruction, PAQ1, PAQ2, PAQ3, PAQ4, PAQ5, PAQ6, PAQ7, PAQ8, PAQ9]
 page_sequence += [FORECAST_PAGES[31], FORECAST_PAGES[32], FORECAST_PAGES[33], FORECAST_PAGES[34], FORECAST_PAGES[35], PAQ10]
+page_sequence += [FORECAST_PAGES[36], FORECAST_PAGES[37], PAQ11]
+page_sequence += [FORECAST_PAGES[38], FORECAST_PAGES[39], FORECAST_PAGES[40], PAQ12]
 page_sequence += [Graph, Survey2, Likely, CAT, NT, Thanks]
