@@ -1,7 +1,9 @@
 {{ extends "global/Page.html" }}
 
 {{ block title }}
-Please Read The Following Instructions Carefully
+<div class="text-center">
+    Please Read The Following Instructions Carefully
+</div>
 {{ endblock }}
 
 {{ block content }}
@@ -11,12 +13,12 @@ Please Read The Following Instructions Carefully
 </p>
 
 <p>
-    You will first observe forecast-performance information for several blocks of periods through Period 30. During these observation blocks, you are not required to make any forecast decisions.
+    You will first observe forecast-performance information for several blocks of periods through Period 30. During these observation blocks, you are not required to make any forecast decisions, but <strong> You must answer the two slider questions below the table based on the SYSTEM FORECAST accuracy</strong>.
     Your first forecast decision will begin at <strong>Period 31</strong>.
 </p>
 
 <p>
-    Before moving through the remaining observation blocks, carefully observe the system's performance for <strong>Periods 1–5</strong>.
+    Before moving through the remaining periods, carefully observe the system's forecast and its performance for <strong>Periods 1–5</strong>.
 </p>
 
 <table class="table table-sm table-bordered text-center">
@@ -43,7 +45,7 @@ Please Read The Following Instructions Carefully
 </table>
 
 <p>
-    <strong>System APE</strong> means the absolute percentage error of the statistical system forecast relative to actual demand.
+    <strong>System APE</strong> means the absolute percentage error of the statistical system forecast relative to actual demand. <strong> The smaller the APE, the better the forecast accuracy </strong>.
     After each block, you will answer two slider questions about your perceived forecast-system accuracy and confidence.
 </p>
 

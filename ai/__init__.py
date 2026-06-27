@@ -234,7 +234,7 @@ class Player(BasePlayer):
     )
     Q48 = models.StringField(
         widget=widgets.RadioSelect,
-        label='Have you used or are you using a statistical, analytical, or AI-based tool for modeling or prediction?',
+        label='Have you used or are you using a statistical, analytical, or AI-based tool for forecasting?',
         choices=(
             (1, 'Definitely not'),
             (2, 'Probably not'),
@@ -253,6 +253,17 @@ class Player(BasePlayer):
             (3, 'Might or might not'),
             (4, 'Probably yes'),
             (5, 'Definitely yes'),
+        ),
+    )
+    ACQ2 = models.StringField(
+        widget=widgets.RadioSelect,
+        label='In the forecast exercise, what does a smaller Absolute Percentage Error (APE) indicate?',
+        choices=(
+            (1, 'A less accurate forecast'),
+            (2, 'A more accurate forecast'),
+            (3, 'A larger forecast adjustment'),
+            (4, 'High product demand'),
+            (5, 'None of the above'),
         ),
     )
 
@@ -701,7 +712,7 @@ class Likely(ConsentOk):
 class CAT(ConsentOk):
     template_name = 'ai/CAT.html'
     form_model = 'player'
-    form_fields = ['cat1', 'cat2', 'cat3', 'cat4', 'cat1_time', 'cat2_time', 'cat3_time', 'cat4_time']
+    form_fields = ['cat1', 'cat2', 'cat3', 'cat4', 'ACQ2', 'cat1_time', 'cat2_time', 'cat3_time', 'cat4_time']
 
 
 class NT(ConsentOk):
@@ -730,8 +741,8 @@ class Thanks(ConsentOk):
 # Page sequence
 # -------------------------
 
-page_sequence = [Consent, Name, Survey, Instruction, PAQ1, PAQ2, PAQ3, PAQ4, PAQ5, PAQ6, PAQ7, PAQ8, PAQ9]
+page_sequence = [Consent, Name, Survey2, Instruction, PAQ1, PAQ2, PAQ3, PAQ4, PAQ5, PAQ6, PAQ7, PAQ8, PAQ9]
 page_sequence += [FORECAST_PAGES[31], FORECAST_PAGES[32], FORECAST_PAGES[33], FORECAST_PAGES[34], FORECAST_PAGES[35], PAQ10]
 page_sequence += [FORECAST_PAGES[36], FORECAST_PAGES[37], PAQ11]
 page_sequence += [FORECAST_PAGES[38], FORECAST_PAGES[39], FORECAST_PAGES[40], PAQ12]
-page_sequence += [Graph, Survey2, Likely, CAT, NT, Thanks]
+page_sequence += [Graph, Survey, Likely, CAT, NT, Thanks]
