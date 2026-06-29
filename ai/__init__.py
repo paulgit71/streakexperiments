@@ -246,7 +246,7 @@ class Player(BasePlayer):
 
     ACQ1 = models.StringField(
         widget=widgets.RadioSelect,
-        label='Please choose Definitely yes for this question. Do you answer questions to the best of your abilities?',
+        label='Please choose "Definitely yes" for this question. Do you answer questions to the best of your abilities?',
         choices=(
             (1, 'Definitely not'),
             (2, 'Probably not'),
