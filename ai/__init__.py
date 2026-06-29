@@ -267,6 +267,19 @@ class Player(BasePlayer):
         ),
     )
 
+    ACQ3 = models.StringField(
+        widget=widgets.RadioSelect,
+        label='I read the forecast instructions thoroughly before completing',
+        choices=(
+            (1, 'A Strongly Disagree'),
+            (2, 'Disagree'),
+            (3, 'Neither Agree nor Disagree'),
+            (4, 'Agree'),
+            (5, 'Strongly Agree'),
+        ),
+    )
+
+
     # likelihood questions - financial risk preference
     Q13f1 = models.IntegerField(label='Betting 10% of your annual income at the horse races.', choices=((1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')), widget=widgets.RadioSelectHorizontal)
     Q13f2 = models.IntegerField(label='Investing 10% of your annual income in a moderate growth mutual fund.', choices=((1, 'Very unlikely'), (2, 'Unlikely'), (3, 'Not sure'), (4, 'Likely'), (5, 'Very likely')), widget=widgets.RadioSelectHorizontal)
@@ -541,7 +554,7 @@ def name_error_message(player, value):
 class Survey(ConsentOk):
     template_name = 'ai/Survey.html'
     form_model = 'player'
-    form_fields = ['Q41', 'Q42', 'Q43', 'Q44', 'Q44_1', 'Q45']
+    form_fields = ['Q41', 'Q42', 'Q43', 'Q44', 'Q44_1', 'Q45', 'ACQ3']
 
 
 class Instruction(ConsentOk):
