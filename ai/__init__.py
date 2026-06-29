@@ -269,7 +269,7 @@ class Player(BasePlayer):
 
     ACQ3 = models.StringField(
         widget=widgets.RadioSelect,
-        label='I read the forecast instructions thoroughly before completing',
+        label='To show that you are paying attention, please select "Strongly Agree" for this question',
         choices=(
             (1, 'A Strongly Disagree'),
             (2, 'Disagree'),
@@ -554,7 +554,7 @@ def name_error_message(player, value):
 class Survey(ConsentOk):
     template_name = 'ai/Survey.html'
     form_model = 'player'
-    form_fields = ['Q41', 'Q42', 'Q43', 'Q44', 'Q44_1', 'Q45']
+    form_fields = ['Q41', 'Q42', 'Q43', 'Q44', 'Q44_1', 'Q45', 'ACQ3']
 
 
 class Instruction(ConsentOk):
@@ -731,7 +731,7 @@ class CAT(ConsentOk):
 class NT(ConsentOk):
     template_name = 'ai/NT.html'
     form_model = 'player'
-    form_fields = ['nt1', 'nt2', 'nt3','ACQ3', 'nt1_time', 'nt2_time', 'nt3_time']
+    form_fields = ['nt1', 'nt2', 'nt3', 'nt1_time', 'nt2_time', 'nt3_time']
 
 
 class Thanks(ConsentOk):
